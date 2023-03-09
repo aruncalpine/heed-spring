@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="default">
+    <head>
+        <title>Signup</title>
+        <link rel="stylesheet" href="/css/style.css" />       
+    </head>
+    <body>
+        <div layout:fragment="content">
+            <form class="form-signin" th:action="@{/user/signup}" method="post">
+                <h1 class="h3 mb-3 font-weight-normal">Signup Here</h1>
+                <div th:if="${param.error}">
+                    Invalid email and password.
+                </div>
+                <div th:if="${param.logout}">
+                    You have been logged out.
+                </div>
+                <div class="divTable">
+					<div class="divTableBody">
+						<div class="divTableRow">
+							<div class="divTableCell">First Name</div>
+							<div class="divTableCell"><input type="text" name="firstName" id="firstName" class="form-control" placeholder="First Name" required /></div>
+						</div>
+						<div class="divTableRow">
+							<div class="divTableCell">Last Name</div>
+							<div class="divTableCell"><input type="text" name="lastName" id="lastName" class="form-control" placeholder="Last Name" required /></div>
+						</div>
+						<div class="divTableRow">
+							<div class="divTableCell">Email</div>
+							<div class="divTableCell"><input type="email" name="email" id="email" class="form-control" placeholder="Email" required /></div>
+						</div>
+						<div class="divTableRow">
+							<div class="divTableCell">Mobile Number</div>
+							<div class="divTableCell"><input type="number" name="mobilePhone" id="mobilePhone" class="form-control" placeholder="Mobile Number" required /></div>
+						</div>
+						<div class="divTableRow">
+							<div class="divTableCell">Password</div>
+							<div class="divTableCell"><input type="password" name="password" id="password" class="form-control" placeholder="Password" required /></div>
+						</div>
+						<div class="divTableRow">
+							<div class="divTableCell">Confirm Password</div>
+							<div class="divTableCell"><input type="password" name="confirmPassword" id="confirmPassword" class="form-control" placeholder="Password" required /></div>
+						</div>
+						<div class="divTableRow">
+							<div class="divTableCell"><button class="btn btn-lg btn-primary btn-block" type="submit">Sign Up</button></div>
+						</div>
+					</div>
+				</div>	
+            </form>
+            <form class="form-signin" th:action="@{/}" method="get">
+                <div class="divTable">
+					<div class="divTableBody">
+						<div class="divTableRow">
+							<div class="divTableCell"><button class="btn btn-md btn-success btn-block" type="Submit">Login In</button></div>
+						</div>
+					</div>
+				</div>                
+            </form>
+        </div>
+    </body>
+</html>
