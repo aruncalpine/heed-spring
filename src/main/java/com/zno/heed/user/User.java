@@ -46,6 +46,8 @@ public class User {
 	private String userName;	
 	private String email;	
 	private String password;
+// $R `15/03/23 added confirmPassword
+	private String confirmPassword;
 	private String workPhone;	
 	private Boolean accountExpired = false;
 	private Boolean accountLocked = false;
@@ -135,6 +137,12 @@ public class User {
 	}
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	public String getConfirmPassword() {
+		return confirmPassword;
+	}
+	public void setConfirmPassword(String confirmPassword) {
+		this.confirmPassword = confirmPassword;
 	}
 	public String getWorkPhone() {
 		return workPhone;

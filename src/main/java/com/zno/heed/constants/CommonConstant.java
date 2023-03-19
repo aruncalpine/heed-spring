@@ -36,7 +36,7 @@ public interface CommonConstant {
 		public static final String INVALID_ONE = "INVALID_ONE";
 		public static final String INVALID_TWO = "INVALID_TWO";
 		public static final String INVALID_THREE = "INVALID_THREE";
-		public static final String USER_LOCKED_ONE = "USER IS LOCKED ONE";
+		public static final String USER_LOCKED_ONE = "Invalid credentials. Please try again.Two more attempt";
 		public static final String USER_LOCKED_TWO = "USER IS LOCKED TWO";
 		public static final String USER_LOCKED_THREE = "USER IS LOCKED THREE";
 		public static final String USER_LOCKED_THREE_OUT = "USER_LOCKED_THREE_OUT";
@@ -60,6 +60,7 @@ public interface CommonConstant {
 		public static final String INVALID_MOBILE_PHONE = "Mobile phone number is invalid";
 		public static final String INVALID_WORK_PHONE = "Work phone number is invalid";
 		public static final String INVALID_EMAIL = "Email is invalid";
+		public static final String PASSWORD_MISSMATCH = "Password and confirm passwored doesnot match";
 		
 		public static final String LOAD_CREATE_USER = "Create user page loadded successfully";
 		public static final String USER_LOGIN = "User LogIn successfully";

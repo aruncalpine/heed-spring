@@ -48,14 +48,34 @@ public class ValidationUtil {
 	}
 
 	public static boolean isInvalidNumber(String str) {
-		return !isNullOrEmpty(str) && !StringUtils.isNumeric(str);
+// $R 05/03/23 pattern, matcher and matcher.find is added		    
+		 Pattern pattern = Pattern.compile("\\d{10}");
+		    Matcher matcher = pattern.matcher(str);
+		return !isNullOrEmpty(str) && !StringUtils.isNumeric(str)&&matcher.find();
 	}
 
-	public static boolean isInvalidEmailAddress(String email) {
+	public static boolean isInvalidEmailAddress(String email) {	
 		if(!isNullOrEmpty(email))
 			return !EmailValidator.getInstance().isValid(email);
-		return false;
+// $R 15/03/23 return changed to true			
+		return true;
 	}
+	public static boolean isInvalidEmailAddress1(String email) {	
+		if(!isNullOrEmpty(email))
+			return !EmailValidator.getInstance().isValid(email);
+// $R 15/03/23 return changed to true			
+		return true;
+	}
+// $R 15/03/23 added isInvalidPassword	
+	
+	public static boolean isInvalidPassword(String password , String confirmPassword) {
+		return !password.equals(confirmPassword);
+	}
+	
+// 16/03/23
+
+	
+	
 	
 	public static boolean isInvalidDomain(String domain) {
 		if(!isNullOrEmpty(domain))
