@@ -1,0 +1,95 @@
+#!/usr/bin/env groovy
+
+node {
+	try {
+        //notifySlack()
+
+
+    stage 'Repo download'
+        checkout scm
+       
+       stage 'Build'  
+		withCredentials([string(credentialsId: 'BACKENDUSERNAME', variable: 'ConnectionUsername'), 
+			string(credentialsId: 'BACKENDPASSWORD', variable: 'ConnectionPassword'), 
+			string(credentialsId: 'BACKENDDBNAME', variable: 'ConnectionDBname'), 
+			string(credentialsId: 'BACKENDHOST', variable: 'ConnectionHost')]) {
+				sh '''set -x
+				APP_PATH=$(find /var/lib/jenkins/workspace/$JOB_NAME/src/* -type f | egrep "application.properties")
+				sed -i -e "s/BACKENDHOST/${ConnectionHost}/g" \\
+				-e "s/BACKENDPASSWORD/${ConnectionPassword}/g" \\
+				-e "s/BACKENDUSERNAME/${ConnectionUsername}/g" \\
+				-e "s/BACKENDDBNAME/${ConnectionDBname}/g" $APP_PATH
+				cat $APP_PATH
+				'''
+				docker.image("arunr039/maven:3.6").inside() {
+                    sh '''				
+						VERSION=$(git describe --tags --long | cut -c 2-)-b${BUILD_NUMBER}
+						echo $VERSION
+						mvn --batch-mode release:update-versions
+						mvn versions:set -DnewVersion=${VERSION}
+						mvn clean install -DskipTests           
+					'''	
+				}
+			}
+             
+	  stage 'Archive' 
+		  archive 'target/heed*.war'
+        
+	  stage 'Deploy'            
+				withCredentials([string(credentialsId: 'PORT22', variable: 'PORT'),
+				string(credentialsId: 'HOST_IP_ADDRESS', variable: 'DEPLOY_HOST'),
+				usernameColonPassword(credentialsId: 'HOSTCRED', variable: 'CRED')]) {
+				
+				
+				 sh '''#!/bin/bash
+						set -x
+						set -e
+						echo "$JOB_NAME"
+						PORT=${PORT:-22}
+						ConnectionHost=${DEPLOY_HOST}
+						#[[ -z $ConnectionHost ]] && exit 1
+						initial () {
+							set -x
+							DATE=$(date +%F-%M)
+							mkdir -pv /opt/wildfly/old-war/${DATE}
+							mkdir -pv /opt/wildfly/current-war
+							for i in $(ls /opt/wildfly/current-war/)
+							do
+							cd /opt/wildfly/current-war/
+							mv $i /opt/wildfly/old-war/${DATE}/
+							done
+						}
+						wild_deploy () {
+							systemctl restart wildfly.service
+							sleep 25
+							/opt/wildfly/bin/jboss-cli.sh --connect --command=deployment-info | grep -v heed
+							[[ $? -eq 0 ]] && /opt/wildfly/bin/jboss-cli.sh --connect --command="undeploy heed.war"
+							sleep 25
+							/opt/wildfly/bin/jboss-cli.sh --connect --command="deploy /opt/wildfly/current-war/heed.war --force" && \
+							echo "New war deployed"
+							sleep 25
+							/opt/wildfly/bin/jboss-cli.sh --connect --command=deployment-info
+						}
+					   typeset -f | ssh  -o "StrictHostKeyChecking no" root@${DEPLOY_HOST} \
+							-p${PORT} -tt "$(cat);initial"
+						scp  -o "StrictHostKeyChecking no" -P${PORT} target/heed*.war \
+							root@${DEPLOY_HOST}:/opt/wildfly/current-war/heed.war
+					   typeset -f | ssh  -o "StrictHostKeyChecking no" root@${DEPLOY_HOST} \
+					   -p${PORT} -tt "$(cat);wild_deploy" 
+							'''        
+					}    
+    }
+	catch (e)
+	{
+   
+		currentBuild.result = 'FAILURE'
+    
+		throw e
+       } 
+	
+     finally {
+   		 sh label: '', script: 'echo "Completed!!!!"'
+             }
+
+}
+
