@@ -133,18 +133,12 @@ public class UserService implements UserDetailsService {
 	 */
 	@Transactional  
 	public UserResponse doLogin(LoginRequest loginUser, BindingResult bindingResult, HttpServletRequest request ) throws ZnoQuirk {
-		
-		String ipAddress = request.getRemoteAddr();
-		
-                 System.out.println(ipAddress);
-                 
+		String ipAddress = request.getRemoteAddr();                 
 		if(bindingResult.hasErrors()) throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.INVALID_INPUT_DATA);
 		User userInDB = userRepository.findByEmail(loginUser.getEmail());
 		
 		if(userInDB == null) 
-			throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.ERROR_LOGIN_INVALID_USER);  
-		
-		
+			throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.ERROR_LOGIN_INVALID_USER);
 		
 		Boolean flag = getlock(userInDB);
 		if(flag == true) {
@@ -157,7 +151,7 @@ public class UserService implements UserDetailsService {
 			boolean matches = encoder.matches(loginUser.getPassword(),userInDB.getPassword());
 			if(matches){
 				User user = userInDB;
-				user.setUserToken(UUID.randomUUID().toString());
+				user.setUserToken(generateToken());
 				user.setTokenTime(new Date());
 				user.setAttempts(0);
 				user.setLoginUcId(null);
@@ -223,8 +217,6 @@ public class UserService implements UserDetailsService {
 	private String generateToken() {
 		return UUID.randomUUID().toString();
 	}
-
-	
 	
 	@Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -263,15 +255,11 @@ public class UserService implements UserDetailsService {
 	}
  
 	@Transactional
-	public UserResponse saveUser(User user)throws ZnoQuirk {
-		
-		User userExists = findByEmail(user.getEmail()); 
-		
+	public UserResponse saveUser(User user)throws ZnoQuirk {		
+		User userExists = findByEmail(user.getEmail());		
 		if (userExists != null) throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.USER_EXISIT);
-
 		PasswordEncoder encoder = new BCryptPasswordEncoder();
         user.setPassword(encoder.encode(user.getPassword()));
-//  $R 15/03/23 added setConfirmPassword      
         user.setConfirmPassword(encoder.encode(user.getPassword()));
 		user.setFullName(user.getFirstName() + " "+ user.getLastName());
         UsersRole userRole = usersRoleRepository.findByRoleName("APPUSER");        
@@ -280,14 +268,8 @@ public class UserService implements UserDetailsService {
 		user.setPasswordUpdateDate(new Date());
 		user.setDateCreated(new Date());
 		user.setLastModified(new Date());
-		
-		System.out.println("flow is moving to service class");
-		
-// saving to db		
-		userRepository.save(user);
-// $R 15/03/23 added UserResponse			
-		UserResponse userResponse = new UserResponse(user, 1, null, false, false, null);
-		
+		userRepository.save(user);	
+		UserResponse userResponse = new UserResponse(user, 1, null, false, false, null);		
 		return userResponse;        
 	}
 	

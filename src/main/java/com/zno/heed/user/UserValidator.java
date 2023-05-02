@@ -14,15 +14,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
 
-
 @Component
 public class UserValidator extends CustomValidatorBean {
 
-	
-
 	@Override
 	public boolean supports(Class<?> classObj) {
-		if(User.class.equals(classObj))
+		if (User.class.equals(classObj))
 			return true;
 		return false;
 	}
@@ -31,34 +28,24 @@ public class UserValidator extends CustomValidatorBean {
 	public void validate(Object obj, Errors errors) {
 		System.out.println("validation");
 		super.validate(obj, errors);
-		if(obj instanceof User) {
-			User users  = (User)obj;
-			if(validateUserName(users.getFirstName()))
+		if (obj instanceof User) {
+			User users = (User) obj;
+			if (validateUserName(users.getFirstName()))
 				errors.reject(INVALID_FIRSTNAME);
 
-			if(validateUserName(users.getLastName()))
+			if (validateUserName(users.getLastName()))
 				errors.reject(INVALID_LASTNAME);
-// sysout added 16/03/23			
-System.out.println(users.getMobilePhone());
-System.out.println(users.getLastName());
-
-			if(isInvalidNumber(users.getMobilePhone()))
+	
+			if (isInvalidNumber(users.getMobilePhone()))
 				errors.reject(INVALID_MOBILE_PHONE);
 
-			/*
-			 * if(isInvalidNumber(users.getWorkPhone())) errors.reject(INVALID_WORK_PHONE);
-			 */
-
-			if(isInvalidEmailAddress(users.getEmail()))
+			if (isInvalidEmailAddress(users.getEmail()))
 				errors.reject(INVALID_EMAIL);
-			
-		if(isInvalidPassword(users.getPassword(),users.getConfirmPassword()))
-				errors.reject(PASSWORD_MISSMATCH);
-			
-			
+
+		//	if (isInvalidPassword(users.getPassword(), users.getConfirmPassword()))
+		//		errors.reject(PASSWORD_MISSMATCH);
+
 		}
 	}
-
-
 
 }

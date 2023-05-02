@@ -19,7 +19,7 @@ import com.zno.heed.response.ResponseBean;
 import com.zno.heed.services.LoggerService;
 import com.zno.heed.utils.CommonUtils;
 import com.zno.heed.utils.ZnoQuirk;
-import com.zno.heed.user.User;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
