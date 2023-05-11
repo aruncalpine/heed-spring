@@ -75,8 +75,6 @@ public class ValidationUtil {
 // 16/03/23
 
 	
-	
-	
 	public static boolean isInvalidDomain(String domain) {
 		if(!isNullOrEmpty(domain))
 			return !DomainValidator.getInstance().isValid(domain);

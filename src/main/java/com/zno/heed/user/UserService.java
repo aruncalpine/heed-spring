@@ -218,6 +218,35 @@ public class UserService implements UserDetailsService {
 		return UUID.randomUUID().toString();
 	}
 	
+	@Transactional  
+	public UserResponse signUpLogin(User loginUser ) throws ZnoQuirk {
+		System.out.println("getting into signUp");
+		User userInDB = userRepository.findByEmail(loginUser.getEmail());
+		if(userInDB == null) 
+			throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.ERROR_LOGIN_INVALID_USER);  
+			// do later
+	//		calculateAndSetDaysLeftForPasswordExpiry(userInDB);
+			
+			PasswordEncoder encoder = new BCryptPasswordEncoder();
+			boolean matches = encoder.matches(loginUser.getPassword(),userInDB.getPassword());
+			if(matches){
+				User user = userInDB;
+				user.setUserToken(UUID.randomUUID().toString());
+				user.setTokenTime(new Date());
+				user.setAttempts(0);
+				user.setLoginUcId(null);
+				user.setLastModified(null);
+	//			user.setLastlogin(new Date());
+				userRepository.save(user);
+			   }
+	//			List<NXPMPReference> roles = new ArrayList<NXPMPReference>();
+	//			roles = mapRepo.findRoleById(user);
+	//			user.setRoles(roles);
+				UserResponse userResponse = new UserResponse(userInDB, 1, null, false, false, null);
+				logger.info(_logService.logMessage(userInDB.getEmail() +" : "+ UserMessage.USER_LOGIN, userInDB.getUserToken(), this.getClass().getName()));
+				return userResponse;
+		}
+	
 	@Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
@@ -268,7 +297,12 @@ public class UserService implements UserDetailsService {
 		user.setPasswordUpdateDate(new Date());
 		user.setDateCreated(new Date());
 		user.setLastModified(new Date());
-		userRepository.save(user);	
+		
+		userRepository.save(user);
+		
+//	C from D	UserResponse userResponse = signUpLogin(user);
+		
+		
 		UserResponse userResponse = new UserResponse(user, 1, null, false, false, null);		
 		return userResponse;        
 	}
