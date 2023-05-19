@@ -3,6 +3,8 @@ package com.zno.heed.user;
 public class LoginRequest {
 	private String email;
 	private String password;
+	
+	
 	public String getEmail() {
 		return email;
 	}

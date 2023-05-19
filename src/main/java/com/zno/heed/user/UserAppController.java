@@ -16,9 +16,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zno.heed.chatdata.ChatRepository;
-import com.zno.heed.chatdata.Chat_History;
+import com.zno.heed.chatdata.ChatResponse;
+import com.zno.heed.chatdata.ChatUsers;
+import com.zno.heed.chatdata.ChatUsersView;
 import com.zno.heed.utils.ZnoQuirk;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
@@ -55,9 +56,13 @@ public class UserAppController {
 		return null;
 	}
 	
-	@GetMapping(value="/chat/history/{source}")
-	public ResponseEntity<List<Chat_History>> getChathistory(@PathVariable String source){
-		return new ResponseEntity<List<Chat_History>>(chatRepository.findBySource(source), HttpStatus.OK);
+	@GetMapping(value="/chat/history/{sourceId}")
+	public ResponseEntity<List<ChatUsersView>> getChathistory(@PathVariable Long sourceId){
+		System.out.println("source id"+ sourceId);
+		return new ResponseEntity<List<ChatUsersView>>(chatRepository.findDateAndDestUserFields(sourceId), HttpStatus.OK);
 		
 	}
+	
+
+	
 }

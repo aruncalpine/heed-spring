@@ -50,8 +50,6 @@ public class UserController {
 	private LoggerService _logService;
 	
 
-	
-
 	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 	
 	@GetMapping(value = "/user/signup")

@@ -33,7 +33,6 @@ import com.zno.heed.utils.ZnoQuirk;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-
 /**
  * 
  * This Class may contain confidential, proprietary or legally privileged information. 
@@ -43,7 +42,6 @@ import jakarta.servlet.http.HttpServletRequest;
  * Created Date : 28/07/2020
  * Created By   : TITTU VARGHESE
  */
-
 @Service
 public class UserService implements UserDetailsService {
 
@@ -141,12 +139,12 @@ public class UserService implements UserDetailsService {
 			throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.ERROR_LOGIN_INVALID_USER);
 		
 		Boolean flag = getlock(userInDB);
+		System.out.println(" Flag    "+flag   );
 		if(flag == true) {
 			
 			// do later
-	//		calculateAndSetDaysLeftForPasswordExpiry(userInDB);
+			//calculateAndSetDaysLeftForPasswordExpiry(userInDB);
 			
-
 			PasswordEncoder encoder = new BCryptPasswordEncoder();
 			boolean matches = encoder.matches(loginUser.getPassword(),userInDB.getPassword());
 			if(matches){
@@ -298,10 +296,11 @@ public class UserService implements UserDetailsService {
 		user.setDateCreated(new Date());
 		user.setLastModified(new Date());
 		
+		System.out.println(user);
+		
 		userRepository.save(user);
 		
 //	C from D	UserResponse userResponse = signUpLogin(user);
-		
 		
 		UserResponse userResponse = new UserResponse(user, 1, null, false, false, null);		
 		return userResponse;        

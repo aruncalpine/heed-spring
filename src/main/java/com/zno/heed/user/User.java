@@ -3,6 +3,7 @@ package com.zno.heed.user;
 import java.util.Date;
 
 import com.zno.heed.Company.Company;
+import com.zno.heed.chatdata.ChatUsers;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -60,9 +61,10 @@ public class User {
 	private Long loginUcId;
 	private Date dateCreated;
 	private Date passwordUpdateDate;
-	private Date lastLogin;	
+	private Date lastLogin;		
 	
 	public User() {}	
+	
 	public User(String firstName, String lastName, String email, Company company, UsersRole usersRole ) {
 		this.firstName = firstName;
 		this.lastName = lastName;
