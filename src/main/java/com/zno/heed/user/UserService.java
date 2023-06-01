@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -109,12 +110,14 @@ public class UserService implements UserDetailsService {
 			throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.PASSWORD_EXPIRED);	
 		}
 
-		if(userInDB.getLastModified() != null)
+		if(userInDB.getLastModified()!= null)
 			minu = DateCalculator.getHours(userInDB.getLastModified());
 
-		if(userInDB.getAttempts() == 5 && minu < 360)
-			throw new ZnoQuirk(ResponseCode.FAILED, Lockout.USER_LOCKED_ONE);
-		else if((userInDB.getAttempts() == 10 && minu < 720))
+		if(userInDB.getAttempts()==5 && minu < 360) {
+			System.out.println("user locked one");
+			throw new ZnoQuirk(ResponseCode.FAILED, Lockout.USER_LOCKED_ONE);	
+		}
+		else if((userInDB.getAttempts()==10 && minu < 720))
 			throw new ZnoQuirk(ResponseCode.FAILED, Lockout.USER_LOCKED_TWO);
 		else
 			flag = true;		
@@ -147,7 +150,10 @@ public class UserService implements UserDetailsService {
 			
 			PasswordEncoder encoder = new BCryptPasswordEncoder();
 			boolean matches = encoder.matches(loginUser.getPassword(),userInDB.getPassword());
+			System.out.println(loginUser.getPassword()+" "+userInDB.getPassword());
+			System.out.println(matches);
 			if(matches){
+				System.out.println("is matches working");
 				User user = userInDB;
 				user.setUserToken(generateToken());
 				user.setTokenTime(new Date());
@@ -319,4 +325,10 @@ public class UserService implements UserDetailsService {
 			}
 		return admin;
 	}
+	
+	public void logOut(String barerToken){
+		User user = userRepository.findByUserToken(barerToken);
+		String email = user.getEmail();
+		userRepository.setValueForUserToken(email);
+	}		
 }

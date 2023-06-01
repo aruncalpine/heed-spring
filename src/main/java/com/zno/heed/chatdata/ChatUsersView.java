@@ -7,7 +7,7 @@ import com.zno.heed.user.User;
 public interface ChatUsersView {
 
 Date getDate();
-String getFirstName();
+String getFullName();
 String getMobilePhone();
 
 }

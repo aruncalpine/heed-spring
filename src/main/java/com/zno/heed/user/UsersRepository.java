@@ -1,6 +1,11 @@
 package com.zno.heed.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import jakarta.transaction.Transactional;
 
 /**
  * 
@@ -21,4 +26,9 @@ public interface UsersRepository extends JpaRepository<User, Long> {
 	User findByUserToken(String token);
 
 	User findByUserTokenAndAccountLockedAndEnabledAndPasswordExpired(String token, boolean b, boolean c, boolean d);
+	
+	@Transactional
+	@Modifying
+	@Query("update User u set u.userToken = null where u.email = :email")
+	void setValueForUserToken( @Param("email") String email);
 }

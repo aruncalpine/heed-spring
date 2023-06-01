@@ -1,5 +1,6 @@
 package com.zno.heed.user;
 
+import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zno.heed.chatdata.ChatRepository;
 import com.zno.heed.chatdata.ChatResponse;
+import com.zno.heed.chatdata.ChatService;
 import com.zno.heed.chatdata.ChatUsers;
 import com.zno.heed.chatdata.ChatUsersView;
 import com.zno.heed.utils.ZnoQuirk;
@@ -31,6 +33,10 @@ public class UserAppController {
 	UserService userService;
 	@Autowired
 	ChatRepository chatRepository;
+	@Autowired 
+	UsersRepository usersRepository;
+	@Autowired
+	ChatService chatService;
 
 
 	@ResponseBody
@@ -43,9 +49,9 @@ public class UserAppController {
 
 	@PostMapping(value = "/appuser/signup", consumes = "application/json", produces = "application/json")
 	public UserResponse createNewUser(@RequestBody @Valid User user, BindingResult bindingResult, HttpServletRequest request) throws ZnoQuirk {
-		System.out.println("hiiii");
-		UserResponse userResponse = userService.saveUser(user);
 		LoginRequest loginRequest = new LoginRequest(user.getEmail(), user.getPassword());
+		UserResponse userResponse = userService.saveUser(user);
+		
 		userResponse = userService.doLogin(loginRequest, bindingResult, request);
 		return userResponse;
 	}
@@ -56,13 +62,27 @@ public class UserAppController {
 		return null;
 	}
 	
-	@GetMapping(value="/chat/history/{sourceId}")
+/*	@GetMapping(value="/chat/history/{sourceId}")
 	public ResponseEntity<List<ChatUsersView>> getChathistory(@PathVariable Long sourceId){
 		System.out.println("source id"+ sourceId);
 		return new ResponseEntity<List<ChatUsersView>>(chatRepository.findDateAndDestUserFields(sourceId), HttpStatus.OK);
 		
 	}
-	
+	*/
+	@GetMapping(value="/chat/history")
+	public ResponseEntity<List<ChatUsersView>> getChathistory(HttpServletRequest request){
+		  String authorizationHeader = request.getHeader("Authorization");
+		        String bearerToken = authorizationHeader.substring(7);
+		        System.out.println("token  "+bearerToken );
+		    return new ResponseEntity<List<ChatUsersView>>(chatService.getChatHistory(bearerToken),HttpStatus.OK);
+	}		    
 
 	
+   @GetMapping(value="/appuser/logout")
+      public ResponseEntity<String> logout(HttpServletRequest request) {
+	   String authorizationHeader = request.getHeader("Authorization");
+       String bearerToken = authorizationHeader.substring(7);
+	   userService.logout(bearerToken);
+	   return ResponseEntity.ok("Logged out successfully");
+   }
 }
