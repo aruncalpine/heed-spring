@@ -101,7 +101,14 @@
     		<artifactId>netty-socketio</artifactId>
     		<version>1.7.23</version>
 		</dependency>
+		
+		<!-- Dependency for cassandra DB -->
+		 <dependency>
+    <groupId>org.springframework.data</groupId>
+    <artifactId>spring-data-cassandra</artifactId>
+  </dependency>
 
+		
 	</dependencies>
 		
 	

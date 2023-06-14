@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.zno.heed.MysqlEntites.User;
+import com.zno.heed.MysqlRepositories.UsersRepository;
 import com.zno.heed.constants.CommonConstant.ResponseCode;
 import com.zno.heed.constants.CommonConstant.UserMessage;
 import com.zno.heed.response.ResponseBean;

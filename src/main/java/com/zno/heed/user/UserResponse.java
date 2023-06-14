@@ -3,8 +3,10 @@ package com.zno.heed.user;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.zno.heed.Agreement.AgreementFile;
-import com.zno.heed.Company.Company;
+import com.zno.heed.MysqlEntites.AgreementFile;
+import com.zno.heed.MysqlEntites.Company;
+import com.zno.heed.MysqlEntites.User;
+import com.zno.heed.MysqlEntites.UsersRole;
 import com.zno.heed.constants.CommonConstant.AgreementResponseCode;
 
 public class UserResponse {

@@ -1,9 +1,12 @@
-package com.zno.heed.user;
+package com.zno.heed.MysqlRepositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import com.zno.heed.MysqlEntites.User;
 
 import jakarta.transaction.Transactional;
 
@@ -16,7 +19,7 @@ import jakarta.transaction.Transactional;
  * Created Date : 28/07/2020
  * Created By   : TITTU VARGHESE
  */
-
+@Repository
 public interface UsersRepository extends JpaRepository<User, Long> {
 
 	User findByEmail(String email);
@@ -26,6 +29,8 @@ public interface UsersRepository extends JpaRepository<User, Long> {
 	User findByUserToken(String token);
 
 	User findByUserTokenAndAccountLockedAndEnabledAndPasswordExpired(String token, boolean b, boolean c, boolean d);
+	
+	User findByMobilePhone(String mobilePhone);
 	
 	@Transactional
 	@Modifying

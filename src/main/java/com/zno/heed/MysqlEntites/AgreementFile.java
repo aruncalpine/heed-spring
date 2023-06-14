@@ -1,9 +1,8 @@
-package com.zno.heed.Agreement;
+package com.zno.heed.MysqlEntites;
 
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.zno.heed.ZnoReference;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

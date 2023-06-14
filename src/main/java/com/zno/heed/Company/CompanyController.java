@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.zno.heed.user.User;
+import com.zno.heed.MysqlEntites.Company;
+import com.zno.heed.MysqlEntites.User;
+import com.zno.heed.MysqlRepositories.CompanyRepository;
 import com.zno.heed.user.UserService;
 
 @Controller

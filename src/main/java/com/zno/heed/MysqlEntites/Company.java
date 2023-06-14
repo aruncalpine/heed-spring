@@ -1,8 +1,6 @@
-package com.zno.heed.Company;
+package com.zno.heed.MysqlEntites;
 
 import java.util.Date;
-
-import com.zno.heed.user.User;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

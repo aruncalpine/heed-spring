@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
 
+import com.zno.heed.MysqlEntites.User;
+
 @Component
 public class UserValidator extends CustomValidatorBean {
 

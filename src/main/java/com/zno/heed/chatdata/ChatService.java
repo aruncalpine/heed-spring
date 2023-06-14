@@ -5,8 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.zno.heed.user.User;
-import com.zno.heed.user.UsersRepository;
+import com.zno.heed.MysqlEntites.User;
+import com.zno.heed.MysqlRepositories.ChatRepository;
+import com.zno.heed.MysqlRepositories.UsersRepository;
 
 @Service
 public class ChatService {

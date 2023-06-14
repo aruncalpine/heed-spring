@@ -1,8 +1,12 @@
-package com.zno.heed.chatdata;
+package com.zno.heed.MysqlEntites;
 
-import java.sql.Date;
+
+
+
+import java.util.Date;
+
 import javax.xml.crypto.Data;
-import com.zno.heed.user.User;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,6 +16,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.metamodel.StaticMetamodel;
+import lombok.AllArgsConstructor;
 
 @Entity
 public class ChatUsers {
@@ -19,6 +24,7 @@ public class ChatUsers {
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
 int id;
+
 @OneToOne
 @JoinColumn
 User srcUser;
@@ -28,6 +34,26 @@ User srcUser;
 User destUser;
 
 Date date;
+
+Boolean isDeleted;
+
+
+
+public Date getDate() {
+	return date;
+}
+
+public void setDate(Date date) {
+	this.date = date;
+}
+
+public Boolean getIsDeleted() {
+	return isDeleted;
+}
+
+public void setIsDeleted(Boolean isDeleted) {
+	this.isDeleted = isDeleted;
+}
 
 public User getSrcUser() {
 	return srcUser;
@@ -45,13 +71,7 @@ public void setDestUser(User destUser) {
 	this.destUser = destUser;
 }
 
-public Date getDate() {
-	return date;
-}
 
-public void setDate(Date date) {
-	this.date = date;
-}
 
 public int getId() {
 	return id;

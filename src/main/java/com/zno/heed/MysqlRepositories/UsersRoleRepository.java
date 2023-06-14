@@ -1,8 +1,9 @@
-package com.zno.heed.Company;
-
-import java.util.List;
+package com.zno.heed.MysqlRepositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.zno.heed.MysqlEntites.UsersRole;
 
 /**
  * 
@@ -14,9 +15,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * Created By   : TITTU VARGHESE
  */
 
-public interface CompanyRepository extends JpaRepository<Company, Long> {
+@Repository
+public interface UsersRoleRepository extends JpaRepository<UsersRole, Long> {
 
-	Company findByName(String name); 
-	
-	List<Company>findByNameLike(String name);
+	UsersRole findByRoleName(String string);
 }

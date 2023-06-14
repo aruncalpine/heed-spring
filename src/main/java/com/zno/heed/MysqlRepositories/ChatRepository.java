@@ -1,4 +1,4 @@
-package com.zno.heed.chatdata;
+package com.zno.heed.MysqlRepositories;
 
 import java.util.List;
 
@@ -6,9 +6,12 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-import com.zno.heed.user.User;
-
+import com.zno.heed.MysqlEntites.ChatUsers;
+import com.zno.heed.MysqlEntites.User;
+import com.zno.heed.chatdata.ChatUsersView;
+@Repository
 public interface ChatRepository  extends JpaRepository<ChatUsers, Integer>{
 
 
@@ -22,5 +25,5 @@ public interface ChatRepository  extends JpaRepository<ChatUsers, Integer>{
 			+ "where c.src_user_id=:srcUserId", nativeQuery=true)
 	List<ChatUsersView>findDateAndDestUserFields(@Param("srcUserId")Long srcUserId);
 	
-
+     ChatUsers findBySrcUserAndDestUser (User srcUser , User destUser  );
 }

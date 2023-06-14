@@ -1,4 +1,4 @@
-package com.zno.heed.user;
+package com.zno.heed.MysqlEntites;
 
 import java.util.Date;
 

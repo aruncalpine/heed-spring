@@ -25,6 +25,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
+import com.zno.heed.MysqlEntites.LoginHistory;
+import com.zno.heed.MysqlEntites.User;
+import com.zno.heed.MysqlEntites.UsersRole;
+import com.zno.heed.MysqlRepositories.LoginHistoryRepository;
+import com.zno.heed.MysqlRepositories.UsersRepository;
+import com.zno.heed.MysqlRepositories.UsersRoleRepository;
 import com.zno.heed.constants.CommonConstant.Lockout;
 import com.zno.heed.constants.CommonConstant.ResponseCode;
 import com.zno.heed.constants.CommonConstant.UserMessage;

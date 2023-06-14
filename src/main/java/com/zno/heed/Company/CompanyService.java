@@ -3,6 +3,8 @@ package com.zno.heed.Company;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.zno.heed.MysqlEntites.Company;
+import com.zno.heed.MysqlRepositories.CompanyRepository;
 import com.zno.heed.constants.CommonConstant.CompanyMessage;
 import com.zno.heed.constants.CommonConstant.ResponseCode;
 import com.zno.heed.utils.ZnoQuirk;

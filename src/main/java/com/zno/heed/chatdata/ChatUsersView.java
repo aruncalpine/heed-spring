@@ -2,7 +2,7 @@ package com.zno.heed.chatdata;
 
 import java.sql.Date;
 
-import com.zno.heed.user.User;
+import com.zno.heed.MysqlEntites.User;
 
 public interface ChatUsersView {
 
