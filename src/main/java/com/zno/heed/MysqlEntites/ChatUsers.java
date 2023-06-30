@@ -1,29 +1,19 @@
 package com.zno.heed.MysqlEntites;
 
-
-
-
 import java.util.Date;
-
-import javax.xml.crypto.Data;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.metamodel.StaticMetamodel;
-import lombok.AllArgsConstructor;
 
 @Entity
 public class ChatUsers {
 
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
-int id;
+Long id;
 
 @OneToOne
 @JoinColumn
@@ -71,13 +61,11 @@ public void setDestUser(User destUser) {
 	this.destUser = destUser;
 }
 
-
-
-public int getId() {
+public Long getId() {
 	return id;
 }
 
-public void setId(int id) {
+public void setId(Long id) {
 	this.id = id;
 }
 

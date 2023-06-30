@@ -1,6 +1,7 @@
 package com.zno.heed.MysqlRepositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,6 +17,7 @@ public interface ChatRepository  extends JpaRepository<ChatUsers, Integer>{
 
 
 	@Query(value="select \n"
+			+ "c.id as id,\n "
 			+ "	c.date as date,\n"
 			+ "	u1.full_name as fullName,\n"
 			+ "	u1.mobile_phone as mobilePhone\n"
@@ -25,5 +27,10 @@ public interface ChatRepository  extends JpaRepository<ChatUsers, Integer>{
 			+ "where c.src_user_id=:srcUserId", nativeQuery=true)
 	List<ChatUsersView>findDateAndDestUserFields(@Param("srcUserId")Long srcUserId);
 	
-     ChatUsers findBySrcUserAndDestUser (User srcUser , User destUser  );
+  ChatUsers   findBySrcUserAndDestUser (User srcUser , User destUser  );
+        
+     boolean existsChatUsersBySrcUserIdAndDestUserId (User srcUser , User destUser  );
+     
+     @Query(value = "SELECT * FROM chat_users WHERE id = ?1",  nativeQuery = true)
+       ChatUsers findById(Long id);
 }

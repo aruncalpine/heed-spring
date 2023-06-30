@@ -25,5 +25,4 @@ public List<ChatUsersView> getChatHistory(String barerToken){
 	 System.out.println("The id of the user  "+Id  );
 	return (chatRepository.findDateAndDestUserFields(Id));
 }
-	
 }
