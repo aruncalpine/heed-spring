@@ -1,6 +1,7 @@
 package com.zno.heed.user;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -336,5 +337,10 @@ public class UserService implements UserDetailsService {
 		User user = userRepository.findByUserToken(barerToken);
 		String email = user.getEmail();
 		userRepository.setValueForUserToken(email);
-	}		
+	}	
+	
+	public void saveProfileImage(String barerToken, Path filePath) {
+		String path = filePath.toString();
+		userRepository.setProfileImagePath(path, barerToken);
+	}
 }

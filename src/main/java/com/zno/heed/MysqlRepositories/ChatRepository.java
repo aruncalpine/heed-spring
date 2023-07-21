@@ -33,4 +33,11 @@ public interface ChatRepository  extends JpaRepository<ChatUsers, Integer>{
      
      @Query(value = "SELECT * FROM chat_users WHERE id = ?1",  nativeQuery = true)
        ChatUsers findById(Long id);
+     
+     @Query(value="select \n"
+ 			+ "	u1.mobile_phone as mobilePhone\n"
+ 			+ "from chat_users c \n"
+ 			+ "inner join user u1 on c.dest_user_id = u1.id\n"
+ 			+ "where c.id=:id", nativeQuery=true)
+     String findDestUserMobilePhoneById(@Param("id") Long id);
 }

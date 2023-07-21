@@ -22,7 +22,7 @@ public interface ChatMessageRepository extends CassandraRepository<ChatMessages,
 	@AllowFiltering
 	ChatMessages findByMessagesAndCreatedDateTime(String messages , Date date);
 	
-	@Query("update chatmessages set messages =?0 , updateddatetime =?1 where id=?2")
+	@Query("update chatmessages set messages =?0 , updatedatetime =?1 where id=?2")
 	void updateMessage(String message,Date date,UUID id);
 	
 	@AllowFiltering

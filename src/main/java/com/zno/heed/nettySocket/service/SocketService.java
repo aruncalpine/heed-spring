@@ -19,8 +19,10 @@ import com.zno.heed.constants.CommonConstant.ResponseCode;
 import com.zno.heed.constants.CommonConstant.ResponseMessage;
 import com.zno.heed.constants.CommonConstant.UserMessage;
 import com.zno.heed.nettySocket.model.DeleteMessage;
+import com.zno.heed.nettySocket.model.LocationData;
 import com.zno.heed.nettySocket.model.Message;
 import com.zno.heed.nettySocket.model.MessageType;
+import com.zno.heed.nettySocket.model.Response;
 import com.zno.heed.nettySocket.model.UpdateMessage;
 import com.zno.heed.utils.ZnoQuirk;
 
@@ -49,6 +51,16 @@ public class SocketService {
 		}
 	}
 
+// Sending 	location
+	public void sendLocation(SocketIONamespace toSender, UUID id, String eventName, SocketIOClient senderClient,
+			Message data) {
+		
+		SocketIOClient client = toSender.getClient(id);
+		if (!client.getSessionId().equals(senderClient.getSessionId())) {
+			client.sendEvent(eventName, new Message(data.getLocationData()));
+		}
+	}
+	
 // For saving chatUsers    
 	public ChatUsers saveChatUser ( String token , Message data) throws ZnoQuirk {
 	ChatUsers  chatUsers = null;
@@ -75,7 +87,7 @@ public class SocketService {
        }
 
 // For saving
-	public UUID saveMessage(String token, Message data) throws ZnoQuirk {
+	public Response saveMessage(String token, Message data) throws ZnoQuirk {
 		// TODO Auto-generated method stub
 
 		ChatUsers chatUsers = saveChatUser(token, data);
@@ -84,11 +96,29 @@ public class SocketService {
 		chatMessages.setChatUserId(chatUsers.getId());
 		chatMessages.setMessages(data.getMessage());
 		chatMessages.setCreatedDateTime(new Date());
-		chatMessages.setIsDeleted(false);
+		chatMessages.setIsDeleted(false);		
 		chatMessageRepository.save(chatMessages);
-
-		return chatMessages.getId();
+        Response response = new Response(chatMessages.getId(),chatMessages.getChatUserId()) ;  
+		return response;
 	}
+	
+// For saving with location
+	public Response saveLocation(String token, Message data) throws ZnoQuirk {
+		// TODO Auto-generated method stub
+
+		ChatUsers chatUsers = saveChatUser(token, data);
+
+		ChatMessages chatMessages = new ChatMessages();
+		chatMessages.setChatUserId(chatUsers.getId());
+		chatMessages.setCreatedDateTime(new Date());
+		chatMessages.setIsDeleted(false);
+		chatMessages.setLatitude(data.getLocationData().getLatitude());
+		chatMessages.setLongitude(data.getLocationData().getLongitude());
+		chatMessageRepository.save(chatMessages);
+		Response response = new Response(chatMessages.getId(),chatMessages.getChatUserId()) ;
+		return response;
+	}
+	
 
 //	For Updating
 	public void updateMessage(UpdateMessage data) {

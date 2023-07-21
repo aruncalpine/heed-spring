@@ -8,5 +8,5 @@ public class UpdateMessage {
  
 	private	UUID id;
 	private String message;
-	private String mobileNumber;
+	private Long chatUserId;
 }

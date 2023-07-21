@@ -6,6 +6,8 @@ import java.util.UUID;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
+import com.zno.heed.nettySocket.model.LocationData;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,6 +27,7 @@ public class ChatMessages {
 	Date createdDateTime;
 	Boolean isDeleted;
 	Date updateDateTime;
-	
-	
+	String  latitude;
+	String longitude;
+
 }
