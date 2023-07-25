@@ -1,6 +1,7 @@
 package com.zno.heed.user;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,7 +24,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
 
+import com.zno.heed.MysqlEntites.LoginHistory;
+import com.zno.heed.MysqlEntites.User;
+import com.zno.heed.MysqlEntites.UsersRole;
+import com.zno.heed.MysqlRepositories.LoginHistoryRepository;
+import com.zno.heed.MysqlRepositories.UsersRepository;
+import com.zno.heed.MysqlRepositories.UsersRoleRepository;
 import com.zno.heed.constants.CommonConstant.Lockout;
 import com.zno.heed.constants.CommonConstant.ResponseCode;
 import com.zno.heed.constants.CommonConstant.UserMessage;
@@ -30,6 +39,7 @@ import com.zno.heed.services.LoggerService;
 import com.zno.heed.utils.DateCalculator;
 import com.zno.heed.utils.ZnoQuirk;
 
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 
@@ -40,7 +50,6 @@ import com.zno.heed.utils.ZnoQuirk;
  * Created Date : 28/07/2020
  * Created By   : TITTU VARGHESE
  */
-
 @Service
 public class UserService implements UserDetailsService {
 
@@ -108,12 +117,14 @@ public class UserService implements UserDetailsService {
 			throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.PASSWORD_EXPIRED);	
 		}
 
-		if(userInDB.getLastModified() != null)
+		if(userInDB.getLastModified()!= null)
 			minu = DateCalculator.getHours(userInDB.getLastModified());
 
-		if(userInDB.getAttempts() == 5 && minu < 360)
-			throw new ZnoQuirk(ResponseCode.FAILED, Lockout.USER_LOCKED_ONE);
-		else if((userInDB.getAttempts() == 10 && minu < 720))
+		if(userInDB.getAttempts()==5 && minu < 360) {
+			System.out.println("user locked one");
+			throw new ZnoQuirk(ResponseCode.FAILED, Lockout.USER_LOCKED_ONE);	
+		}
+		else if((userInDB.getAttempts()==10 && minu < 720))
 			throw new ZnoQuirk(ResponseCode.FAILED, Lockout.USER_LOCKED_TWO);
 		else
 			flag = true;		
@@ -128,81 +139,125 @@ public class UserService implements UserDetailsService {
 	 * @throws ZnoExceptionResponse
 	 * @throws IOException 
 	 */
-	@Transactional
-	public User doLogin(User user, String ipAddress) throws ZnoQuirk {
-		User userInDB = null;
-		userInDB = userRepository.findByEmail(user.getEmail());
-
-		// this is to be removed after the development is completed
-		User userInDBwithPassword = userRepository.findByEmailAndPassword(user.getEmail(), user.getPassword());
-		PasswordEncoder encoder = new BCryptPasswordEncoder();
-		boolean matches = encoder.matches(user.getPassword(), userRepository.findByEmail(user.getEmail()).getPassword());
-		if(userInDB != null && matches || userInDBwithPassword != null ){
-			user = userInDB;
-			user.setUserToken(generateToken());
-			user.setTokenTime(new Date());
-			user.setAttempts(0);
-			user.setLoginUcId(null);
-			user.setLastModified(null);
-			user.setLastLogin(new Date());
-			userRepository.save(user);
-		} else {	
-			userInDB = userRepository.findByEmail(user.getEmail());
-			if(userInDB != null) {
-				if(userInDB.getAttempts() == 0)
-					userInDB.setLastModified(new Date());
-
-				LoginHistory loginHistory = new LoginHistory(userInDB, ipAddress, new Date(), new Date());
-				loginHistoryRepository.save(loginHistory);				
-
-				if(userInDB.getAttempts() < 5) {
-					userInDB.setAttempts(userInDB.getAttempts()+1);	
-					if(userInDB.getAttempts() == 5) {
-						userInDB.setLastModified(new Date());					
-						userRepository.save(userInDB);		
-					} else {	
-						userRepository.save(userInDB);
-						throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.ERROR_LOGIN_INVALID_USER);		
-					}
-
-				} else if(userInDB.getAttempts() < 10) {
-					userInDB.setAttempts(userInDB.getAttempts()+1);
-					if(userInDB.getAttempts() == 10) {
-						userInDB.setLastModified(new Date());
-						userRepository.save(userInDB);
-					} else {
-						userRepository.save(userInDB);
-						throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.ERROR_LOGIN_INVALID_USER);	
-					}
-
-				} else if(userInDB.getAttempts() < 15) {
-					userInDB.setAttempts(userInDB.getAttempts()+1);	
-					if(userInDB.getAttempts() == 15) {
-						userInDB.setLastModified(new Date());
-						userInDB.setAccountLocked(true);
-						userRepository.save(userInDB);
-					} else {
-						userRepository.save(userInDB);
-						throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.ERROR_LOGIN_INVALID_USER);
-					}
-				} else if(userInDB.getAttempts() >= 15){
-					userInDB.setAccountLocked(true);		
-					userRepository.save(userInDB);
-					throw new ZnoQuirk(ResponseCode.FAILED, Lockout.USER_LOCKED_THREE_OUT);
-
-				}else {
-					throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.ERROR_LOGIN_INVALID_USER);					
-				}
-			}
-		}
+	@Transactional  
+	public UserResponse doLogin(LoginRequest loginUser, BindingResult bindingResult, HttpServletRequest request ) throws ZnoQuirk {
+		String ipAddress = request.getRemoteAddr();                 
+		if(bindingResult.hasErrors()) throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.INVALID_INPUT_DATA);
+		User userInDB = userRepository.findByEmail(loginUser.getEmail());
 		
-		return user;
+		if(userInDB == null) 
+			throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.ERROR_LOGIN_INVALID_USER);
+		
+		Boolean flag = getlock(userInDB);
+		System.out.println(" Flag    "+flag   );
+		if(flag == true) {
+			
+			// do later
+			//calculateAndSetDaysLeftForPasswordExpiry(userInDB);
+			
+			PasswordEncoder encoder = new BCryptPasswordEncoder();
+			boolean matches = encoder.matches(loginUser.getPassword(),userInDB.getPassword());
+			System.out.println(loginUser.getPassword()+" "+userInDB.getPassword());
+			System.out.println(matches);
+			if(matches){
+				System.out.println("is matches working");
+				User user = userInDB;
+				user.setUserToken(generateToken());
+				user.setTokenTime(new Date());
+				user.setAttempts(0);
+				user.setLoginUcId(null);
+				user.setLastModified(null);
+	//			user.setLastlogin(new Date());
+				userRepository.save(user);
+	//			List<NXPMPReference> roles = new ArrayList<NXPMPReference>();
+	//			roles = mapRepo.findRoleById(user);
+	//			user.setRoles(roles);
+				UserResponse userResponse = new UserResponse(userInDB, 1, null, false, false, null);
+				logger.info(_logService.logMessage(userInDB.getEmail() +" : "+ UserMessage.USER_LOGIN, userInDB.getUserToken(), this.getClass().getName()));
+				return userResponse;
+			} 
+			if(userInDB.getAttempts() == 0)
+				userInDB.setLastModified(new Date());
+			LoginHistory loginHistory = new LoginHistory(userInDB, ipAddress, new Date(), new Date());
+			loginHistoryRepository.save(loginHistory);				
+			if(userInDB.getAttempts() < 3) {
+				userInDB.setAttempts(userInDB.getAttempts()+1);	
+				if(userInDB.getAttempts() == 3) {
+					userInDB.setLastModified(new Date());					
+					userRepository.save(userInDB);		
+				} else {	
+					userRepository.save(userInDB);
+					throw new ZnoQuirk(ResponseCode.FAILED, Lockout.USER_LOCKED_ONE);	
+				}
+
+			} else if(userInDB.getAttempts() < 6) {
+				userInDB.setAttempts(userInDB.getAttempts()+1);
+				if(userInDB.getAttempts() == 6) {
+					userInDB.setLastModified(new Date());
+					userRepository.save(userInDB);
+				} else {
+					userRepository.save(userInDB);
+					throw new ZnoQuirk(ResponseCode.FAILED, Lockout.USER_LOCKED_TWO);
+				}
+
+			} else if(userInDB.getAttempts() < 9) {
+				userInDB.setAttempts(userInDB.getAttempts()+1);	
+				if(userInDB.getAttempts() == 9) {
+					userInDB.setLastModified(new Date());
+					userInDB.setAccountLocked(true);
+					userRepository.save(userInDB);
+				} else {
+					userRepository.save(userInDB);
+					throw new ZnoQuirk(ResponseCode.FAILED, Lockout.USER_LOCKED_THREE);
+				}
+			} else if(userInDB.getAttempts() >= 9){
+				userInDB.setAccountLocked(true);		
+				userRepository.save(userInDB);
+						throw new ZnoQuirk(ResponseCode.FAILED, Lockout.USER_LOCKED_THREE_OUT);
+
+			}else {
+				throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.ERROR_LOGIN_INVALID_USER);					
+			}
+		}		
+		flag=getlock(userInDB);
+		UserResponse userResponse = new UserResponse(userInDB, 1, null, false, false, null);
+		logger.info(_logService.logMessage(userInDB.getEmail() +" : "+ UserMessage.USER_LOGIN, userInDB.getUserToken(), this.getClass().getName()));
+		return userResponse;
 	}
 	
 	private String generateToken() {
 		return UUID.randomUUID().toString();
 	}
-
+	
+	@Transactional  
+	public UserResponse signUpLogin(User loginUser ) throws ZnoQuirk {
+		System.out.println("getting into signUp");
+		User userInDB = userRepository.findByEmail(loginUser.getEmail());
+		if(userInDB == null) 
+			throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.ERROR_LOGIN_INVALID_USER);  
+			// do later
+	//		calculateAndSetDaysLeftForPasswordExpiry(userInDB);
+			
+			PasswordEncoder encoder = new BCryptPasswordEncoder();
+			boolean matches = encoder.matches(loginUser.getPassword(),userInDB.getPassword());
+			if(matches){
+				User user = userInDB;
+				user.setUserToken(UUID.randomUUID().toString());
+				user.setTokenTime(new Date());
+				user.setAttempts(0);
+				user.setLoginUcId(null);
+				user.setLastModified(null);
+	//			user.setLastlogin(new Date());
+				userRepository.save(user);
+			   }
+	//			List<NXPMPReference> roles = new ArrayList<NXPMPReference>();
+	//			roles = mapRepo.findRoleById(user);
+	//			user.setRoles(roles);
+				UserResponse userResponse = new UserResponse(userInDB, 1, null, false, false, null);
+				logger.info(_logService.logMessage(userInDB.getEmail() +" : "+ UserMessage.USER_LOGIN, userInDB.getUserToken(), this.getClass().getName()));
+				return userResponse;
+		}
+	
 	@Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
@@ -240,18 +295,28 @@ public class UserService implements UserDetailsService {
 	}
  
 	@Transactional
-	public User saveUser(User user) {
+	public UserResponse saveUser(User user)throws ZnoQuirk {		
+		User userExists = findByEmail(user.getEmail());		
+		if (userExists != null) throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.USER_EXISIT);
 		PasswordEncoder encoder = new BCryptPasswordEncoder();
         user.setPassword(encoder.encode(user.getPassword()));
+        user.setConfirmPassword(encoder.encode(user.getPassword()));
 		user.setFullName(user.getFirstName() + " "+ user.getLastName());
-        UsersRole userRole = usersRoleRepository.findByRoleName("ADMIN");        
+        UsersRole userRole = usersRoleRepository.findByRoleName("APPUSER");        
         user.setUsersRole(userRole);
 		user.setEnabled(true);
 		user.setPasswordUpdateDate(new Date());
 		user.setDateCreated(new Date());
 		user.setLastModified(new Date());
+		
+		System.out.println(user);
+		
 		userRepository.save(user);
-		return user;        
+		
+//	C from D	UserResponse userResponse = signUpLogin(user);
+		
+		UserResponse userResponse = new UserResponse(user, 1, null, false, false, null);		
+		return userResponse;        
 	}
 	
 	public User checkAdminToken(String token) throws ZnoQuirk {
@@ -266,5 +331,16 @@ public class UserService implements UserDetailsService {
 				userRepository.save(admin);
 			}
 		return admin;
+	}
+	
+	public void logOut(String barerToken){
+		User user = userRepository.findByUserToken(barerToken);
+		String email = user.getEmail();
+		userRepository.setValueForUserToken(email);
+	}	
+	
+	public void saveProfileImage(String barerToken, Path filePath) {
+		String path = filePath.toString();
+		userRepository.setProfileImagePath(path, barerToken);
 	}
 }

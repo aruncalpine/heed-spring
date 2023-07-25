@@ -1,0 +1,1 @@
+create table chatmessages (id bigint primary key,chatUserId bigint,messages text,type text, isDeleted boolean , createdDateTime date )

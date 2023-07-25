@@ -9,17 +9,15 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.zno.heed.MysqlEntites.User;
+import com.zno.heed.MysqlRepositories.UsersRepository;
 import com.zno.heed.constants.CommonConstant.ResponseCode;
-import com.zno.heed.constants.CommonConstant.ResponseMessage;
 import com.zno.heed.constants.CommonConstant.UserMessage;
 import com.zno.heed.response.ResponseBean;
-import com.zno.heed.response.SuccessDataResponse;
 import com.zno.heed.services.LoggerService;
 import com.zno.heed.utils.CommonUtils;
 import com.zno.heed.utils.ZnoQuirk;
@@ -38,7 +36,6 @@ import jakarta.validation.Valid;
  */
  
 @Controller
-@RequestMapping(value = "/user")
 public class UserController {
 
 	@Autowired
@@ -53,10 +50,11 @@ public class UserController {
 
 	@Autowired
 	private LoggerService _logService;
+	
 
 	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 	
-	@GetMapping(value = "/signup")
+	@GetMapping(value = "/user/signup")
 	public ModelAndView signup() {
 		ModelAndView modelAndView = new ModelAndView();
 		User user = new User();
@@ -65,44 +63,43 @@ public class UserController {
 		return modelAndView;
 	}
 	
-	@PostMapping(value = "/signup")
+	@PostMapping(value = "/user/signup")
 	public ModelAndView createNewUser(@Valid User user, BindingResult bindingResult) {
 		ModelAndView modelAndView = new ModelAndView();
-		User userExists = userService.findByEmail(user.getEmail()); 
-		if (userExists != null) {
-			bindingResult.rejectValue("email", "error.user",
-					"There is already a user registered with the email id provided");
-		}
-		if (bindingResult.hasErrors()) {
-			modelAndView.setViewName("signup");
-		} else {
+		try{
+		
 			userService.saveUser(user);
 			modelAndView.addObject("successMessage", "User has been registered successfully");
 			modelAndView.addObject("user", new User());
 			modelAndView.setViewName("login");
-		}
+			return modelAndView;
+		}catch(ZnoQuirk exception ) {
+			modelAndView.addObject("errorMessage", exception.getMessage());
+			modelAndView.setViewName("signup");
 		return modelAndView;
+		}	
 	}
 	
-	@PostMapping(value = "/login")
-	public SuccessDataResponse login(@RequestBody LoginRequest loginUser, BindingResult bindingResult, HttpServletRequest request) throws ZnoQuirk {
+	@PostMapping(value = "/user/login")
+	public ModelAndView login(@Valid LoginRequest loginUser, BindingResult bindingResult, HttpServletRequest request) throws ZnoQuirk {
 		System.out.println("ccccccccccccccccccccc");
-		String ipAddress = request.getRemoteAddr();
-		if(bindingResult.hasErrors()) throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.INVALID_INPUT_DATA);
-
-		User user = userRepository.findByEmail(loginUser.getEmail()); 
-		if(user == null)  throw new ZnoQuirk(ResponseCode.FAILED, UserMessage.ERROR_LOGIN_INVALID_USER); 
+		ModelAndView modelAndView = new ModelAndView();	
+		try {
+		 UserResponse userResponse =userService.doLogin(loginUser, bindingResult, request); 
+		 modelAndView.addObject("user", userResponse);
+			modelAndView.setViewName("home");
+			return modelAndView;
+		}catch(ZnoQuirk exception ) {
+			modelAndView.addObject("errorMessage", exception.getMessage());
+		     modelAndView.setViewName("login");
+		return modelAndView;
 		
-		Boolean flag = userService.getlock(user);
-		if(flag == true) user = userService.doLogin(user, ipAddress);		
-		userService.getlock(user);
-		UserResponse userResponse = new UserResponse(user, 1, null, false, false, null);
-		logger.info(_logService.logMessage(user.getEmail() +" : "+ UserMessage.USER_LOGIN, user.getUserToken(), this.getClass().getName()));	
-		return new SuccessDataResponse(ResponseCode.SUCCESS, ResponseMessage.SUCCESS, userResponse);
+		}
+		
 	}
 	
 	@ResponseBody
-	@PostMapping(value = "/logout")
+	@PostMapping(value = "/user/logout")
 	public ResponseBean logout(@RequestHeader(value="userToken", required=true) String userToken) throws ZnoQuirk {
 		User user = userRepository.findByUserToken(userToken);
 		Boolean flag = userService.logout(userToken);

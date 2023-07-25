@@ -21,8 +21,10 @@
         <div layout:fragment="content">
             <form class="form-login" th:action="@{/user/login}" method="post">
                 <h1 class="h3 mb-3 font-weight-normal">Please Sign In</h1>
-                <div th:if="${param.error}">
-                    Invalid email and password.
+                <div th:if="${errorMessage}" class="alert alert-danger">
+                     <p th:text="${errorMessage}"></p>
+               </div>
+                
                 </div>
                 <div th:if="${param.logout}">
                     You have been logged out.

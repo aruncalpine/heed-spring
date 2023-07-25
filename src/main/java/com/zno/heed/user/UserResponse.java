@@ -3,8 +3,10 @@ package com.zno.heed.user;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.zno.heed.Agreement.AgreementFile;
-import com.zno.heed.Company.Company;
+import com.zno.heed.MysqlEntites.AgreementFile;
+import com.zno.heed.MysqlEntites.Company;
+import com.zno.heed.MysqlEntites.User;
+import com.zno.heed.MysqlEntites.UsersRole;
 import com.zno.heed.constants.CommonConstant.AgreementResponseCode;
 
 public class UserResponse {
@@ -229,7 +231,7 @@ public class UserResponse {
 	public String getImageFileName() {
 		return imageFileName;
 	}
-
+	
 	public void setImageFileName(String imageFileName) {
 		this.imageFileName = imageFileName;
 	}
@@ -239,6 +241,7 @@ public class UserResponse {
 		this.lastname = user.getLastName();
 		this.roles.add(user.getUsersRole());
 		this.userToken = user.getUserToken();
+		this.mobilephone=user.getMobilePhone();
 
 		if(agreement == AgreementResponseCode.AGREEMENT_SUCCESS) this.agreement = true;
 		else  this.agreement = false;
