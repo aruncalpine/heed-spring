@@ -23,17 +23,17 @@ node {
 				'''
 				docker.image("arunr039/maven:3.6").inside() {
                     sh '''				
-						VERSION=$(git describe --tags --long | cut -c 2-)-b${BUILD_NUMBER}
-						echo $VERSION
-						mvn --batch-mode release:update-versions
-						mvn versions:set -DnewVersion=${VERSION}
+					#	VERSION=$(git describe --tags --long | cut -c 2-)-b${BUILD_NUMBER}
+					#	echo $VERSION
+					#	mvn --batch-mode release:update-versions
+					#	mvn versions:set -DnewVersion=${VERSION}
 						mvn clean install -DskipTests           
 					'''	
 				}
 			}
              
 	  stage 'Archive' 
-		  archive 'target/heed*.war'
+		  archive 'target/*.war'
         
 	  stage 'Deploy'            
 				withCredentials([string(credentialsId: 'PORT22', variable: 'PORT'),
@@ -62,18 +62,18 @@ node {
 						wild_deploy () {
 							systemctl restart wildfly.service
 							sleep 25
-							/opt/wildfly/bin/jboss-cli.sh --connect --command=deployment-info | grep -v heed
-							[[ $? -eq 0 ]] && /opt/wildfly/bin/jboss-cli.sh --connect --command="undeploy heed.war"
+							/opt/wildfly/bin/jboss-cli.sh --connect --command=deployment-info | grep -v springbootwildfly
+							[[ $? -eq 0 ]] && /opt/wildfly/bin/jboss-cli.sh --connect --command="undeploy springbootwildfly.war"
 							sleep 25
-							/opt/wildfly/bin/jboss-cli.sh --connect --command="deploy /opt/wildfly/current-war/heed.war --force" && \
+							/opt/wildfly/bin/jboss-cli.sh --connect --command="deploy /opt/wildfly/current-war/springbootwildfly.war --force" && \
 							echo "New war deployed"
 							sleep 25
 							/opt/wildfly/bin/jboss-cli.sh --connect --command=deployment-info
 						}
 					   typeset -f | ssh  -o "StrictHostKeyChecking no" root@${DEPLOY_HOST} \
 							-p${PORT} -tt "$(cat);initial"
-						scp  -o "StrictHostKeyChecking no" -P${PORT} target/heed*.war \
-							root@${DEPLOY_HOST}:/opt/wildfly/current-war/heed.war
+						scp  -o "StrictHostKeyChecking no" -P${PORT} target/springbootwildfly*.war \
+							root@${DEPLOY_HOST}:/opt/wildfly/current-war/springbootwildfly.war
 					   typeset -f | ssh  -o "StrictHostKeyChecking no" root@${DEPLOY_HOST} \
 					   -p${PORT} -tt "$(cat);wild_deploy" 
 							'''        
@@ -92,4 +92,3 @@ node {
              }
 
 }
-
