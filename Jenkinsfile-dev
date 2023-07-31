@@ -21,7 +21,7 @@ node {
 				-e "s/BACKENDDBNAME/${ConnectionDBname}/g" $APP_PATH
 				cat $APP_PATH
 				'''
-				docker.image("arunr039/maven:3.6").inside() {
+				docker.image("arunr039/maven-3.8").inside() {
                     sh '''				
 					#	VERSION=$(git describe --tags --long | cut -c 2-)-b${BUILD_NUMBER}
 					#	echo $VERSION
