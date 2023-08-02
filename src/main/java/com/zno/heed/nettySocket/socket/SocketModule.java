@@ -6,23 +6,19 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.corundumstudio.socketio.AckRequest;
-import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIONamespace;
 import com.corundumstudio.socketio.SocketIOServer;
-import com.corundumstudio.socketio.annotation.OnEvent;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.zno.heed.CassandraEntities.ChatMessages;
 import com.zno.heed.CassandraRepositories.ChatMessageRepository;
-import com.zno.heed.MysqlEntites.ChatUsers;
 import com.zno.heed.MysqlEntites.User;
 import com.zno.heed.MysqlRepositories.ChatRepository;
 import com.zno.heed.MysqlRepositories.UsersRepository;
+import com.zno.heed.chatdata.UsersNumbers;
 import com.zno.heed.nettySocket.model.DeleteMessage;
 import com.zno.heed.nettySocket.model.ListMessages;
-import com.zno.heed.nettySocket.model.LocationData;
 import com.zno.heed.nettySocket.model.Message;
 import com.zno.heed.nettySocket.model.Response;
 import com.zno.heed.nettySocket.model.UpdateMessage;
@@ -84,21 +80,45 @@ public class SocketModule {
 		return (senderClient, data, ackSender) -> {
 
 			System.out.println("What is data    " + data.toString());
-
 			String token = senderClient.getHandshakeData().getHttpHeaders().get("BarerToken");
+
 			Response response = socketService.saveMessage(token, data);
-			if(data.getMobileNumber()!=null) {
+
+			if (data.getMobileNumber() != null) {
 				socketService.sendMessage(mapNameSpace.get(data.getMobileNumber()),
-						mapSessionId.get(data.getMobileNumber()), "get_message", senderClient, data.getMessage());
+						mapSessionId.get(data.getMobileNumber()), "get_message", senderClient, data.getMessage(),
+						response.getChatUserId());
 
 			}
-			if(data.getChatUserId()!=null) {
-				System.out.println("the moblie number is  " );
-				String mobileNumber = chatRepository.findDestUserMobilePhoneById(data.getChatUserId());
-				System.out.println("the moblie number is     "+ mobileNumber );
-				socketService.sendMessage(mapNameSpace.get(mobileNumber),
-						mapSessionId.get(mobileNumber), "get_message", senderClient, data.getMessage());
+
+			if (data.getChatUserId() != null) {
+
+				User sendUser = usersRepository.findByUserToken(token);
+
+
+				UsersNumbers numbers = chatRepository
+						.findDestUserMobilePhoneAndSrcUserMobilePhone(data.getChatUserId());
+
+				System.out.println(numbers.getMobilePhone1());
+				System.out.println(numbers.getMobilePhone2());
+
+				String sendUserMobile = sendUser.getMobilePhone();
+
+				String user1MobileNumber = numbers.getMobilePhone1();
+
+				String user2MobileNumber = numbers.getMobilePhone2();
+
+				if (sendUserMobile.equals(user1MobileNumber)) {
+					socketService.sendMessage(mapNameSpace.get(user2MobileNumber), mapSessionId.get(user2MobileNumber),
+							"get_message", senderClient, data.getMessage(), data.getChatUserId());
+				}
+
+				if (sendUserMobile.equals(user2MobileNumber)) {
+					socketService.sendMessage(mapNameSpace.get(user1MobileNumber), mapSessionId.get(user1MobileNumber),
+							"get_message", senderClient, data.getMessage(), data.getChatUserId());
+				}
 			}
+
 			ackSender.sendAckData(response);
 		};
 	}
@@ -109,15 +129,34 @@ public class SocketModule {
 			System.out.println("What is data    " + data.toString());
 
 			String token = senderClient.getHandshakeData().getHttpHeaders().get("BarerToken");
-			String mobileNumber = chatRepository.findDestUserMobilePhoneById(data.getChatUserId());	
 			socketService.updateMessage(data);
-			socketService.sendMessage(mapNameSpace.get(mobileNumber),
-					mapSessionId.get(mobileNumber), "get_message", senderClient, data.getMessage());
-             String  string ="updated";
-             ackSender.sendAckData(string);
+			User sendUser = usersRepository.findByUserToken(token);
+
+			UsersNumbers numbers = chatRepository.findDestUserMobilePhoneAndSrcUserMobilePhone(data.getChatUserId());
+
+			System.out.println(numbers.getMobilePhone1());
+			System.out.println(numbers.getMobilePhone2());
+
+			String sendUserMobile = sendUser.getMobilePhone();
+
+			String user1MobileNumber = numbers.getMobilePhone1();
+
+			String user2MobileNumber = numbers.getMobilePhone2();
+
+			if (sendUserMobile.equals(user1MobileNumber)) {
+				socketService.sendMessage(mapNameSpace.get(user2MobileNumber), mapSessionId.get(user2MobileNumber),
+						"get_message", senderClient, data.getMessage(), data.getChatUserId());
+			}
+
+			if (sendUserMobile.equals(user2MobileNumber)) {
+				socketService.sendMessage(mapNameSpace.get(user1MobileNumber), mapSessionId.get(user1MobileNumber),
+						"get_message", senderClient, data.getMessage(), data.getChatUserId());
+			}
+			Response response = new Response(data.getId(),data.getChatUserId());
+ 			ackSender.sendAckData(response);
 		};
 	}
-	
+
 	private DataListener<DeleteMessage> onDeletedReceived() {
 		return (senderClient, data, ackSender) -> {
 			socketService.deleteMessage(data);
@@ -128,30 +167,47 @@ public class SocketModule {
 
 	private DataListener<ListMessages> onListReceived() {
 		return (senderClient, data, ackSender) -> {
-			List<ChatMessages> chatMessages = chatMessageRepository.findAllByChatUserId(data.getChatUserID());
-			senderClient.sendEvent("list_messages", chatMessages);
+			System.out.println("the id     " + data.getChatUserId());
+			List<ChatMessages> messages = chatMessageRepository
+					.findMessagesByChatUserIdOrderByCreatedDateTime(data.getChatUserId());
+			senderClient.sendEvent("list_messages", messages);
 		};
 	}
-	
+
 	private DataListener<Message> onLocationShared() {
 		return (senderClient, data, ackSender) -> {
 			String token = senderClient.getHandshakeData().getHttpHeaders().get("BarerToken");
 			Response response = socketService.saveLocation(token, data);
-			if(data.getMobileNumber()!=null) {
-	        socketService.sendLocation(mapNameSpace.get(data.getMobileNumber()),
-					mapSessionId.get(data.getMobileNumber()), "get_message", senderClient, data);
+			if (data.getMobileNumber() != null) {
+				socketService.sendLocation(mapNameSpace.get(data.getMobileNumber()),
+						mapSessionId.get(data.getMobileNumber()), "get_message", senderClient, data,response.getChatUserId());
 			}
-			if(data.getChatUserId()!=null) {
-				System.out.println("the moblie number is  " );
-				String mobileNumber = chatRepository.findDestUserMobilePhoneById(data.getChatUserId());
-				System.out.println("the moblie number is     "+ mobileNumber );
-				socketService.sendLocation(mapNameSpace.get(mobileNumber),
-						mapSessionId.get(mobileNumber), "get_message", senderClient, data);
-			}
-			
-	        ackSender.sendAckData(response);
-	    };
+			if (data.getChatUserId() != null) {
+				User sendUser = usersRepository.findByUserToken(token);
 	
-	}	
-		
+				UsersNumbers numbers = chatRepository.findDestUserMobilePhoneAndSrcUserMobilePhone(data.getChatUserId());
+
+				System.out.println(numbers.getMobilePhone1());
+				System.out.println(numbers.getMobilePhone2());
+
+				String sendUserMobile = sendUser.getMobilePhone();
+
+				String user1MobileNumber = numbers.getMobilePhone1();
+
+				String user2MobileNumber = numbers.getMobilePhone2();
+
+				if (sendUserMobile.equals(user1MobileNumber)) {
+					socketService.sendLocation(mapNameSpace.get(user2MobileNumber),
+							mapSessionId.get(user2MobileNumber), "get_message", senderClient, data, data.getChatUserId());
+				}
+
+				if (sendUserMobile.equals(user2MobileNumber)) {
+					socketService.sendLocation(mapNameSpace.get(user1MobileNumber),
+							mapSessionId.get(user1MobileNumber), "get_message", senderClient, data, data.getChatUserId());
+				}	
+			}
+			ackSender.sendAckData(response);
+		};
+
+	}
 }

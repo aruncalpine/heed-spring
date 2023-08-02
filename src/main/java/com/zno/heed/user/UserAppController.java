@@ -142,7 +142,7 @@ public class UserAppController {
 		 * chatMessageRepository.save(chatMessages3);
 		 */
 
-		chatMessageRepository.updateIsDeleted(id);
+	//	chatMessageRepository.updateIsDeleted(id);
 		return ResponseEntity.ok("updated");
 
 	}
@@ -199,7 +199,7 @@ public class UserAppController {
 	    public ResponseEntity<ImageUploadResponse> uploadImage(
 	            @RequestParam("image") MultipartFile multipartFile)
 	                    throws IOException {
-	         
+	        System.out.println("haiiii"); 
 	        String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
 	        long size = multipartFile.getSize();
 	         

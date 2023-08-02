@@ -19,7 +19,8 @@ public class ProfileImageUploadUtil {
 @Autowired
 UserService userService;
 	public  String saveProfileImage(String fileName, MultipartFile multipartFile, String bearerToken) throws IOException {
-		Path uploadPath = Paths.get("ProfileImages-Upload");
+		String homeDirectory=System.getProperty("user.home");
+		Path uploadPath = Paths.get(homeDirectory+"/ProfileImages-Upload");
 		if (!Files.exists(uploadPath)) {
 			Files.createDirectories(uploadPath);
 		}
