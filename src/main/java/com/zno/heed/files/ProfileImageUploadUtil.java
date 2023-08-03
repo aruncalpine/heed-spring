@@ -28,8 +28,6 @@ UserService userService;
 		try (InputStream inputStream = multipartFile.getInputStream()) {
 			Path filePath = uploadPath.resolve(fileCode + "-" + fileName);
 			
-		//	UserService userService = new UserService();
-		//	userService.saveProfileImage(bearerToken, filePath);
 			userService.saveProfileImage(bearerToken, filePath);
 			Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException ioe) {
