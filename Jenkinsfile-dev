@@ -15,10 +15,10 @@ node {
 			string(credentialsId: 'BACKENDHOST', variable: 'ConnectionHost')]) {
 				sh '''set -x
 				APP_PATH=$(find /var/lib/jenkins/workspace/$JOB_NAME/src/* -type f | egrep "application.properties")
-				sed -i -e "s/BACKENDHOST/${ConnectionHost}/g" \\
-				-e "s/BACKENDPASSWORD/${ConnectionPassword}/g" \\
-				-e "s/BACKENDUSERNAME/${ConnectionUsername}/g" \\
-				-e "s/BACKENDDBNAME/${ConnectionDBname}/g" $APP_PATH
+				sed -i -e "s/BACKENDHOST/127.0.0.1/g" \\
+				#-e "s/BACKENDPASSWORD/${ConnectionPassword}/g" \\
+				#-e "s/BACKENDUSERNAME/${ConnectionUsername}/g" \\
+				#-e "s/BACKENDDBNAME/${ConnectionDBname}/g" $APP_PATH
 				cat $APP_PATH
 				'''
 				docker.image("arunr039/maven-3.8").inside() {
