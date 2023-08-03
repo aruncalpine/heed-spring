@@ -5,5 +5,6 @@ import java.util.UUID;
 import lombok.Data;
 @Data
 public class DeleteMessage {
+	
 	UUID id;
 }

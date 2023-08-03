@@ -40,24 +40,24 @@ public class SocketService {
 
 // Sending messages	
 	public void sendMessage(SocketIONamespace toSender, UUID id, String eventName, SocketIOClient senderClient,
-			String message, Long chatUserId) {
+			String message) {
 		// for (
 		// SocketIOClient client :
 		// senderClient.getNamespace().getRoomOperations(room).getClients()) {
 		SocketIOClient client = toSender.getClient(id);
 
 		if (!client.getSessionId().equals(senderClient.getSessionId())) {
-			client.sendEvent(eventName, new Message(MessageType.SERVER, message, chatUserId));
+			client.sendEvent(eventName, new Message(MessageType.SERVER, message));
 		}
 	}
 
 // Sending 	location
 	public void sendLocation(SocketIONamespace toSender, UUID id, String eventName, SocketIOClient senderClient,
-			Message data, Long chatUserId) {
+			Message data) {
 		
 		SocketIOClient client = toSender.getClient(id);
 		if (!client.getSessionId().equals(senderClient.getSessionId())) {
-			client.sendEvent(eventName, new Message(data.getLocationData(),chatUserId));
+			client.sendEvent(eventName, new Message(data.getLocationData()));
 		}
 	}
 	
@@ -122,17 +122,12 @@ public class SocketService {
 
 //	For Updating
 	public void updateMessage(UpdateMessage data) {
-//   	chatMessageRepository.updateMessage(data.getMessage(), new Date(), data.getId());
-		ChatMessages chatMessages = chatMessageRepository.findChatMessagesById(data.getId());
-		chatMessages.setMessages(data.getMessage());
-		chatMessages.setUpdateDateTime(new Date());
-		chatMessageRepository.save(chatMessages);
+		chatMessageRepository.updateMessage(data.getMessage(), new Date(), data.getId());
 	}
 
 // For deleting	
 	public void deleteMessage(DeleteMessage data) {
-		ChatMessages chatMessages = chatMessageRepository.findChatMessagesById(data.getId());
-		chatMessages.setIsDeleted(true);
-		chatMessageRepository.save(chatMessages);
+		chatMessageRepository.updateIsDeleted(data.getId());
 	}
+
 }

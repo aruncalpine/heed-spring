@@ -14,17 +14,15 @@ public class Message {
     private LocationData locationData;
 
 
-    public Message(MessageType type, String message, Long chatUserId ) {
+    public Message(MessageType type, String message) {
         this.type = type;
         this.message = message;
-        this.chatUserId=chatUserId;
     }
 
 
-	public Message(LocationData locationData,  Long chatUserId) {
+	public Message(LocationData locationData) {
 		super();
 		this.locationData = locationData;
-		 this.chatUserId=chatUserId;
 	}
     
    

@@ -24,11 +24,13 @@
 
 	<dependencies>
 
+
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 			
-		<!-- 	<exclusions>
+			<exclusions>
 				<exclusion>
 					<groupId>ch.qos.logback</groupId>
 					<artifactId>logback-classic</artifactId>
@@ -39,7 +41,7 @@
 					<artifactId>spring-boot-starter-tomcat</artifactId>
 				</exclusion>
 			</exclusions>
-	-->
+			
 		</dependency>
 
 		<dependency>
@@ -80,6 +82,7 @@
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 		</dependency>
+
 
 		<dependency>
 			<groupId>commons-lang</groupId>
@@ -132,6 +135,7 @@
 		</dependency>
 -->
 	</dependencies>
+
 
 	<build>
 		<finalName>springbootwildfly</finalName>

@@ -12,8 +12,8 @@ public class ImageDownloadUtil {
     private Path foundFile;
     
     public Resource getFileAsResource(String fileCode) throws IOException {
-        String homeDirectory=System.getProperty("user.home");
-		Path dirPath = Paths.get(homeDirectory+"/Images-Upload");
+        Path dirPath = Paths.get("Images-Upload");
+         
         Files.list(dirPath).forEach(file -> {
             if (file.getFileName().toString().startsWith(fileCode)) {
                 foundFile = file;
