@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import com.zno.heed.MysqlEntites.ChatUsers;
 import com.zno.heed.MysqlEntites.User;
 import com.zno.heed.chatdata.ChatUsersView;
+import com.zno.heed.chatdata.UsersNumbers;
 @Repository
 public interface ChatRepository  extends JpaRepository<ChatUsers, Integer>{
 
@@ -31,7 +32,8 @@ public interface ChatRepository  extends JpaRepository<ChatUsers, Integer>{
         
      boolean existsChatUsersBySrcUserIdAndDestUserId (User srcUser , User destUser  );
      
-     @Query(value = "SELECT * FROM chat_users WHERE id = ?1",  nativeQuery = true)
+     @Query(value = "SELECT * FROM chat_users c " +
+    	        "WHERE c.id = ?1", nativeQuery = true)
        ChatUsers findById(Long id);
      
      @Query(value="select \n"
@@ -40,4 +42,12 @@ public interface ChatRepository  extends JpaRepository<ChatUsers, Integer>{
  			+ "inner join user u1 on c.dest_user_id = u1.id\n"
  			+ "where c.id=:id", nativeQuery=true)
      String findDestUserMobilePhoneById(@Param("id") Long id);
+     
+     @Query(value = "SELECT u1.mobile_phone as mobilePhone1, u2.mobile_phone as mobilePhone2 FROM chat_users c " +
+    	        "INNER JOIN user u1 ON c.dest_user_id = u1.id " +
+    	        "INNER JOIN user u2 ON c.src_user_id = u2.id " +
+    	        "WHERE c.id = ?1", nativeQuery = true)
+     UsersNumbers findDestUserMobilePhoneAndSrcUserMobilePhone(Long id);
+     
+     
 }

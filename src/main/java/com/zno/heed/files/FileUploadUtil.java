@@ -12,7 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class FileUploadUtil {
 	public static String saveFile(String fileName, MultipartFile multipartFile) throws IOException {
-		Path uploadPath = Paths.get("Files-Upload");
+		String homeDirectory=System.getProperty("user.home");
+		Path uploadPath = Paths.get(homeDirectory+"/Files-Upload");
 		if (!Files.exists(uploadPath)) {
 			Files.createDirectories(uploadPath);
 		}

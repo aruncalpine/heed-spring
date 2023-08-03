@@ -12,8 +12,9 @@ public class ProfileImageDownloadUtil {
     private Path foundFile;
     
     public Resource getFileAsResource(String fileCode) throws IOException {
-        Path dirPath = Paths.get("ProfileImages-Upload");
-         
+       
+        String homeDirectory=System.getProperty("user.home");
+		Path dirPath = Paths.get(homeDirectory+"/ProfileImages-Upload"); 
         Files.list(dirPath).forEach(file -> {
             if (file.getFileName().toString().startsWith(fileCode)) {
                 foundFile = file;
