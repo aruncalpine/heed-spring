@@ -26,6 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
+import com.zno.heed.CassandraEntities.ChatMessages;
+import com.zno.heed.CassandraRepositories.ChatMessageRepository;
 import com.zno.heed.MysqlEntites.LoginHistory;
 import com.zno.heed.MysqlEntites.User;
 import com.zno.heed.MysqlEntites.UsersRole;
@@ -35,6 +37,7 @@ import com.zno.heed.MysqlRepositories.UsersRoleRepository;
 import com.zno.heed.constants.CommonConstant.Lockout;
 import com.zno.heed.constants.CommonConstant.ResponseCode;
 import com.zno.heed.constants.CommonConstant.UserMessage;
+import com.zno.heed.nettySocket.model.Message;
 import com.zno.heed.services.LoggerService;
 import com.zno.heed.utils.DateCalculator;
 import com.zno.heed.utils.ZnoQuirk;
@@ -76,6 +79,8 @@ public class UserService implements UserDetailsService {
 	
 	@Autowired
 	private LoginHistoryRepository loginHistoryRepository;
+	
+	@Autowired ChatMessageRepository chatMessageRepository;
 	
 	@Autowired
 	private LoggerService _logService;
@@ -343,4 +348,14 @@ public class UserService implements UserDetailsService {
 		String path = filePath.toString();
 		userRepository.setProfileImagePath(path, barerToken);
 	}
+    public void saveFile(Message message, Path filePath,String fileName) {
+    	String path = filePath.toString();
+        ChatMessages chatMessages = new ChatMessages();
+        chatMessages.setChatUserId(message.getChatUserId());
+        chatMessages.setCreatedDateTime(new Date());
+        chatMessages.setFileType("file");
+        chatMessages.setFileName(fileName);
+        chatMessages.setPath(path);
+        chatMessageRepository.save(chatMessages);
+    }
 }

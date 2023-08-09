@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zno.heed.CassandraEntities.ChatMessages;
 import com.zno.heed.CassandraRepositories.ChatMessageRepository;
 import com.zno.heed.MysqlEntites.User;
@@ -38,6 +39,7 @@ import com.zno.heed.files.ImageUploadUtil;
 import com.zno.heed.files.ProfileImageDownloadUtil;
 import com.zno.heed.files.ProfileImageUploadResponse;
 import com.zno.heed.files.ProfileImageUploadUtil;
+import com.zno.heed.nettySocket.model.Message;
 import com.zno.heed.utils.ZnoQuirk;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,7 +59,12 @@ public class UserAppController {
 	@Autowired
 	ChatMessageRepository chatMessageRepository;
 	@Autowired
-   ProfileImageUploadUtil profileImageUploadUtil;
+    ProfileImageUploadUtil profileImageUploadUtil;
+	@Autowired
+	FileUploadUtil fileUploadUtil;
+	@Autowired
+	ObjectMapper mapper;
+	
 	@ResponseBody
 	@PostMapping(value = "/appuser/login")
 	public UserResponse login(@RequestBody LoginRequest loginUser, BindingResult bindingResult,
@@ -113,7 +120,6 @@ public class UserAppController {
 		chatMessages.setChatUserId(2L);
 		chatMessages.setIsDeleted(false);
 		chatMessages.setMessages("haiiiiiii");
-		chatMessages.setType("image");
 		chatMessages.setCreatedDateTime(new Date());
 		chatMessageRepository.save(chatMessages);
 		System.out.println(chatMessages);
@@ -156,13 +162,16 @@ public class UserAppController {
 	
 	@PostMapping("/uploadFile")
     public ResponseEntity<FileUploadResponse> uploadFile(
-            @RequestParam("file") MultipartFile multipartFile)
+            @RequestParam("file") MultipartFile multipartFile,@RequestParam("message") String message)
                     throws IOException {
          
         String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
         long size = multipartFile.getSize();
          
-        String filecode = FileUploadUtil.saveFile(fileName, multipartFile);
+        Message messageObj = mapper.readValue(message, Message.class);
+        
+        System.out.println("the message    "+ messageObj);
+        String filecode = fileUploadUtil.saveFile(fileName, multipartFile, messageObj );
          
         FileUploadResponse response = new FileUploadResponse();
         response.setFileName(fileName);

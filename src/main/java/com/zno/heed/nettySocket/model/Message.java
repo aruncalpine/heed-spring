@@ -21,8 +21,9 @@ public class Message {
     }
 
 
-	public Message(LocationData locationData,  Long chatUserId) {
+	public Message(MessageType type,LocationData locationData,  Long chatUserId) {
 		super();
+		this.type = type;
 		this.locationData = locationData;
 		 this.chatUserId=chatUserId;
 	}

@@ -57,7 +57,7 @@ public class SocketService {
 		
 		SocketIOClient client = toSender.getClient(id);
 		if (!client.getSessionId().equals(senderClient.getSessionId())) {
-			client.sendEvent(eventName, new Message(data.getLocationData(),chatUserId));
+			client.sendEvent(eventName, new Message( MessageType.SERVER, data.getLocationData(),chatUserId));
 		}
 	}
 	
@@ -91,12 +91,13 @@ public class SocketService {
 		// TODO Auto-generated method stub
 
 		ChatUsers chatUsers = saveChatUser(token, data);
-
+        User user = usersRepository.findByUserToken(token);
 		ChatMessages chatMessages = new ChatMessages();
 		chatMessages.setChatUserId(chatUsers.getId());
 		chatMessages.setMessages(data.getMessage());
 		chatMessages.setCreatedDateTime(new Date());
-		chatMessages.setIsDeleted(false);		
+		chatMessages.setIsDeleted(false);
+		chatMessages.setCreatedBy(user.getId());
 		chatMessageRepository.save(chatMessages);
         Response response = new Response(chatMessages.getId(),chatMessages.getChatUserId()) ;  
 		return response;
@@ -107,7 +108,6 @@ public class SocketService {
 		// TODO Auto-generated method stub
 
 		ChatUsers chatUsers = saveChatUser(token, data);
-
 		ChatMessages chatMessages = new ChatMessages();
 		chatMessages.setChatUserId(chatUsers.getId());
 		chatMessages.setCreatedDateTime(new Date());

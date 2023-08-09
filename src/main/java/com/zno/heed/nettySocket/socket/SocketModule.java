@@ -80,6 +80,7 @@ public class SocketModule {
 		return (senderClient, data, ackSender) -> {
 
 			System.out.println("What is data    " + data.toString());
+			
 			String token = senderClient.getHandshakeData().getHttpHeaders().get("BarerToken");
 
 			Response response = socketService.saveMessage(token, data);

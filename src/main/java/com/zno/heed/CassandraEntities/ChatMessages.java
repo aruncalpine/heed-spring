@@ -9,6 +9,7 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 import com.zno.heed.nettySocket.model.LocationData;
+import com.zno.heed.nettySocket.model.MessageType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,7 +24,7 @@ public class ChatMessages {
 	@PrimaryKeyColumn(type=PrimaryKeyType.PARTITIONED)
 	Long chatUserId;
 	String messages;
-	String type;
+	Long createdBy;
 	String fileName;
 	@PrimaryKeyColumn(type = PrimaryKeyType.CLUSTERED) // Use CLUSTERED for clustering column
 	Date createdDateTime;
@@ -31,4 +32,6 @@ public class ChatMessages {
 	Date updateDateTime;
 	String  latitude;
 	String longitude;
+	String path;
+	String fileType;
 }

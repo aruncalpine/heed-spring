@@ -31,7 +31,7 @@ public class SimpleCORSFilter implements Filter {
 		res.setHeader("Access-Control-Allow-Origin", "*");
 		res.setHeader("Access-Control-Allow-Credentials", "true");
 		res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-		res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, remember-me, userToken, uri, X-Auth-Token");
+		res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, remember-me, userToken, uri, X-Auth-Token,Authorization");
 		res.setHeader("Access-Control-Expose-Headers", "Content-Disposition,X-Suggested-Filename");
 		HttpServletRequest req = (HttpServletRequest) request;
         if (req.getMethod().equals("OPTIONS")) {

@@ -27,8 +27,8 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-	<!-- 		
-			<exclusions>
+	 		
+	<!-- 		<exclusions>
 				<exclusion>
 					<groupId>ch.qos.logback</groupId>
 					<artifactId>logback-classic</artifactId>
@@ -39,7 +39,7 @@
 					<artifactId>spring-boot-starter-tomcat</artifactId>
 				</exclusion>
 			</exclusions>
-	-->		
+		-->
 		</dependency>
 
 		<dependency>
@@ -93,11 +93,11 @@
 			<version>1.4.0</version>
 		</dependency>
 
-		<dependency>
+	<!--	<dependency>
 			<groupId>jakarta.servlet</groupId>
 			<artifactId>jakarta.servlet-api</artifactId>
 		   	<scope>provided</scope>
-		</dependency>
+		</dependency> -->
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>

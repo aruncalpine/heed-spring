@@ -27,7 +27,6 @@ UserService userService;
 		String fileCode = RandomStringUtils.randomAlphanumeric(8);
 		try (InputStream inputStream = multipartFile.getInputStream()) {
 			Path filePath = uploadPath.resolve(fileCode + "-" + fileName);
-			
 			userService.saveProfileImage(bearerToken, filePath);
 			Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException ioe) {
