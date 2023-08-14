@@ -1,11 +1,13 @@
 package com.zno.heed.nettySocket.socket;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.cassandra.core.query.CassandraPageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
-
 import com.corundumstudio.socketio.SocketIONamespace;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.ConnectListener;
@@ -23,6 +25,7 @@ import com.zno.heed.nettySocket.model.Message;
 import com.zno.heed.nettySocket.model.Response;
 import com.zno.heed.nettySocket.model.UpdateMessage;
 import com.zno.heed.nettySocket.service.SocketService;
+import org.springframework.data.domain.PageRequest;
 
 @Component
 public class SocketModule {
@@ -169,9 +172,22 @@ public class SocketModule {
 	private DataListener<ListMessages> onListReceived() {
 		return (senderClient, data, ackSender) -> {
 			System.out.println("the id     " + data.getChatUserId());
-			List<ChatMessages> messages = chatMessageRepository
-					.findMessagesByChatUserIdOrderByCreatedDateTime(data.getChatUserId());
-			senderClient.sendEvent("list_messages", messages);
+			CassandraPageRequest cassandraPageRequest = CassandraPageRequest.of(0, 2);
+			Slice<ChatMessages> messages = chatMessageRepository.findMessagesByChatUserIdOrderByCreatedDateTime(data.getChatUserId() ,cassandraPageRequest);
+            CassandraPageRequest cassandraPageRequest1 = (CassandraPageRequest) messages.getPageable();
+            ByteBuffer byteBuffer = cassandraPageRequest1.getPagingState();
+            
+            System.out.println("the messages   "+messages);
+            System.out.println("paging state  "+cassandraPageRequest1.getPagingState() );
+            String pagingstatestr = com.datastax.oss.protocol.internal.util.Bytes.toHexString(byteBuffer);
+            System.out.println("paging state  "+pagingstatestr);
+            
+		Pageable pageable2 = PageRequest.ofSize(2); // a page number might be any and the result depends only on paging state
+        CassandraPageRequest pageRequest = CassandraPageRequest.of(pageable2,byteBuffer) ;			
+ //      Slice<ChatMessages> messages2 = chatMessageRepository.findMessagesByChatUserIdOrderByCreatedDateTime(data.getChatUserId(),pageRequest);
+          Slice<ChatMessages> messages2 = chatMessageRepository.findMessagesByChatUserIdOrderByCreatedDateTime(data.getChatUserId(), pageRequest);
+          System.out.println("the message 2   "+ messages2);
+               senderClient.sendEvent("list_messages", messages2);
 		};
 	}
 
@@ -190,7 +206,7 @@ public class SocketModule {
 
 				System.out.println(numbers.getMobilePhone1());
 				System.out.println(numbers.getMobilePhone2());
-
+				
 				String sendUserMobile = sendUser.getMobilePhone();
 
 				String user1MobileNumber = numbers.getMobilePhone1();

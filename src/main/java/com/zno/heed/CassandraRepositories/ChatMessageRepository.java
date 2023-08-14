@@ -5,9 +5,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.cassandra.core.query.CassandraPageRequest;
 import org.springframework.data.cassandra.repository.AllowFiltering;
 import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.data.cassandra.repository.Query;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 
 import com.zno.heed.CassandraEntities.ChatMessages;
@@ -31,7 +34,8 @@ public interface ChatMessageRepository extends CassandraRepository<ChatMessages,
 	ChatMessages findChatMessagesById(UUID id);
 	
 	@Query( "SELECT messages FROM chatmessages WHERE chatuserid =?0 ORDER BY createddatetime DESC")
-	List<ChatMessages> findMessagesByChatUserIdOrderByCreatedDateTime(Long chatUserID);
+	Slice<ChatMessages> findMessagesByChatUserIdOrderByCreatedDateTime(Long chatUserID, CassandraPageRequest pageRequest );
+	
 	
 	
 }

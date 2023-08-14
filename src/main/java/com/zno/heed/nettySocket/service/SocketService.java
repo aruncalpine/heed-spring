@@ -1,7 +1,6 @@
 package com.zno.heed.nettySocket.service;
 
 import java.util.Date;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +16,7 @@ import com.zno.heed.MysqlRepositories.ChatRepository;
 import com.zno.heed.MysqlRepositories.UsersRepository;
 import com.zno.heed.constants.CommonConstant.ResponseCode;
 import com.zno.heed.constants.CommonConstant.ResponseMessage;
-import com.zno.heed.constants.CommonConstant.UserMessage;
 import com.zno.heed.nettySocket.model.DeleteMessage;
-import com.zno.heed.nettySocket.model.LocationData;
 import com.zno.heed.nettySocket.model.Message;
 import com.zno.heed.nettySocket.model.MessageType;
 import com.zno.heed.nettySocket.model.Response;
