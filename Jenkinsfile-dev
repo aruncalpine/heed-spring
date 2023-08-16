@@ -42,8 +42,7 @@ node {
 				
 				
 				 sh '''#!/bin/bash
-						systemctl restart wildfly.service
-						sleep 10
+						
 						set -x
 						set -e
 						echo "$JOB_NAME"
@@ -62,7 +61,11 @@ node {
 							done
 						}
 						wild_deploy () {
-							systemctl restart wildfly.service
+							systemctl stop wildfly.service
+							sleep 5
+							systemctl status wildfly.service
+							systemctl start wildfly.service
+							systemctl status wildfly.service
 							/opt/wildfly/bin/jboss-cli.sh --connect --command=deployment-info | grep -v springbootwildfly
 							[[ $? -eq 0 ]] && /opt/wildfly/bin/jboss-cli.sh --connect --command="undeploy springbootwildfly.war"
 							sleep 10
