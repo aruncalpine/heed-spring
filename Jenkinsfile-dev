@@ -15,7 +15,7 @@ node {
 			string(credentialsId: 'BACKENDHOST', variable: 'ConnectionHost')]) {
 				sh '''set -x
 				APP_PATH=$(find /var/lib/jenkins/workspace/$JOB_NAME/src/* -type f | egrep "application.properties")
-				sed -i -e "s/127\\.0\\.0\\.1/\${ConnectionHost}/g" \\
+				#sed -i -e "s/127\\.0\\.0\\.1/\${ConnectionHost}/g" \\
 				-e "s/BACKENDPASSWORD/${ConnectionPassword}/g" \\
 				-e "s/BACKENDUSERNAME/${ConnectionUsername}/g" \\
 				-e "s/BACKENDDBNAME/${ConnectionDBname}/g" $APP_PATH
