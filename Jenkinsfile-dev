@@ -62,7 +62,7 @@ node {
 						}
 						wild_deploy () {
 							systemctl stop wildfly.service
-							systemctl stop wildfly.service
+							systemctl start wildfly.service
 							sleep 10
 							/opt/wildfly/bin/jboss-cli.sh --connect --command=deployment-info | grep -v springbootwildfly
 							[[ $? -eq 0 ]] && /opt/wildfly/bin/jboss-cli.sh --connect --command="undeploy springbootwildfly.war"
