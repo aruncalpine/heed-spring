@@ -61,15 +61,15 @@ node {
 						}
 						wild_deploy () {
 							systemctl stop wildfly.service
-							sleep 15
+							sleep 10
 							systemctl start wildfly.service
 							sleep 10
 							/opt/wildfly/bin/jboss-cli.sh --connect --command=deployment-info | grep -v springbootwildfly
 							[[ $? -eq 0 ]] && /opt/wildfly/bin/jboss-cli.sh --connect --command="undeploy springbootwildfly.war"
-							sleep 25
+							sleep 10
 							/opt/wildfly/bin/jboss-cli.sh --connect --command="deploy /opt/wildfly/current-war/springbootwildfly.war --force" && \
 							echo "New war deployed"
-							sleep 25
+							sleep 10
 							/opt/wildfly/bin/jboss-cli.sh --connect --command=deployment-info
 						}
 					   typeset -f | ssh  -o "StrictHostKeyChecking no" root@${DEPLOY_HOST} \
