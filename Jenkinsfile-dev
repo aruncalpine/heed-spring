@@ -13,13 +13,13 @@ node {
 			string(credentialsId: 'BACKENDPASSWORD', variable: 'ConnectionPassword'), 
 			string(credentialsId: 'BACKENDDBNAME', variable: 'ConnectionDBname'), 
 			string(credentialsId: 'BACKENDHOST', variable: 'ConnectionHost')]) {
-				sh '''set -x
-				APP_PATH=$(find /var/lib/jenkins/workspace/$JOB_NAME/src/* -type f | egrep "application.properties")
+			#	sh '''set -x
+			#	APP_PATH=$(find /var/lib/jenkins/workspace/$JOB_NAME/src/* -type f | egrep "application.properties")
 				#sed -i -e "s/127\\.0\\.0\\.1/\${ConnectionHost}/g" \\
-				-e "s/BACKENDPASSWORD/${ConnectionPassword}/g" \\
-				-e "s/BACKENDUSERNAME/${ConnectionUsername}/g" \\
-				-e "s/BACKENDDBNAME/${ConnectionDBname}/g" $APP_PATH
-				cat $APP_PATH
+			#	-e "s/BACKENDPASSWORD/${ConnectionPassword}/g" \\
+			#	-e "s/BACKENDUSERNAME/${ConnectionUsername}/g" \\
+			#	-e "s/BACKENDDBNAME/${ConnectionDBname}/g" $APP_PATH
+			#	cat $APP_PATH
 				'''
 				docker.image("arunr039/maven-3.8").inside() {
                     sh '''				
