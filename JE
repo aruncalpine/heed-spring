@@ -1,0 +1,42 @@
+#!/usr/bin/env groovy
+
+node {
+
+
+    stage 'Repo download' {
+
+    }
+       
+       
+       stage 'Build'  {
+		// withCredentials([string(credentialsId: 'BACKENDUSERNAME', variable: 'ConnectionUsername'), 
+		// 	string(credentialsId: 'BACKENDPASSWORD', variable: 'ConnectionPassword'), 
+		// 	string(credentialsId: 'BACKENDDBNAME', variable: 'ConnectionDBname'), 
+		// 	string(credentialsId: 'BACKENDHOST', variable: 'ConnectionHost')]) {
+				sh '''set -x
+			#	// APP_PATH=$(find /var/lib/jenkins/workspace/$JOB_NAME/src/* -type f | egrep "application.properties")
+			#	sed -i -e "s/127\\.0\\.0\\.1/\${ConnectionHost}/g" \\
+			#	-e "s/BACKENDPASSWORD/${ConnectionPassword}/g" \\
+			#	-e "s/BACKENDUSERNAME/${ConnectionUsername}/g" \\
+			#	-e "s/BACKENDDBNAME/${ConnectionDBname}/g" $APP_PATH
+				// cat $APP_PATH
+				'''
+				docker.image("arunr039/jenkins-terrafom:nodejs20").inside() {
+                    sh '''				
+					#	VERSION=$(git describe --tags --long | cut -c 2-)-b${BUILD_NUMBER}
+					#	echo $VERSION
+					#	mvn --batch-mode release:update-versions
+					#	mvn versions:set -DnewVersion=${VERSION}
+					#	 mvn clean install -DskipTests 
+                        npm -v 
+                        node -v
+                        terraform -v          
+					'''	
+				}
+			}
+             
+
+	
+
+
+}
